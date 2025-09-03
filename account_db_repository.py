@@ -1,8 +1,6 @@
 import sqlite3
-from const import connection_string
 
-
-class AccountDbRepository:
+class AccountsDbRepository:
     def __init__(self, db_path=connection_string):
         self.conn = sqlite3.connect(db_path)
         self.cursor = self.conn.cursor()
@@ -12,22 +10,21 @@ class AccountDbRepository:
             self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS Account (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    person_id INTEGER FOREIGN KEY REFERENCES Persons(id)
+                    nickname TEXT UNIQUE NOT NULL,
                     login TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
-                    Account_id INTEGER,
                     cash INTEGER,
                     level INTEGER,
-                    mana INTEGER,
-                    health INTEGER
-                )
+                    )
             ''')
             self.conn.commit()
 
-    def add_Account(self, user):
+    def add_account(self, Account):
         self.cursor.execute('''
-            INSERT INTO Account (login, password, Account_id, cash, level, mana, health)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (Account.login, Account.password, Account.Account_id, Account.cash, Account.level, Account.mana, Account.health))
+            INSERT INTO Account (nickname, login, password, cash, level,)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (Account.nickname, Account.login, Account.password, Account.cash, Account.level))
         self.conn.commit()
 
     def get_account_by_login(self, login):
@@ -42,26 +39,17 @@ class AccountDbRepository:
         self.cursor.execute('SELECT * FROM Account')
         return self.cursor.fetchall()
 
-    def update_account(self, account_id, **kwargs):
+    def update_account(self, **kwargs):
         self.cursor.execute('''
             UPDATE Account
-            SET login = ?,
+            SET nickname = ?
+                login = ?,
                 password = ?,
-                Account_id = ?,
-                cash = ?,
-                level = ?,
-                mana = ?,
-                health = ?
             WHERE id = ?
         ''', (
+            kwargs['nickname']
             kwargs['login'],
             kwargs['password'],
-            kwargs['Account_id'],
-            kwargs['cash'],
-            kwargs['level'],
-            kwargs['mana'],
-            kwargs['health'],
-            account_id
         ))
         self.conn.commit()
 
