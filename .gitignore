@@ -1,0 +1,9 @@
+git rm -r --cached .vs
+git commit -m "Удалил .vs из отслеживания"
+
+.vs/
+*.user
+*.suo
+*.log
+__pycache__/
+*.pyc
