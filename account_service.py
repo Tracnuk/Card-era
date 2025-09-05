@@ -1,15 +1,15 @@
 from account_db_repository import AccountDbRepository
-from persom_db_repository import PersonDbRepository
+from person_db_repository import PersonDbRepository
 from account import Account
 from person import Person
 
 account_db_storage = AccountDbRepository()
 
 class AccountService:
-    def create_account(self, nickname, login, password, first_name):
+    def create_account(self, user_data):
         global auth_account
         try:
-            account_db_storage.add_account(Account(nickname, login, password, first_name))
+            account_db_storage.add_account(Account(user_data.nickname, user_data.login, user_data.password))
             auth_account = account_db_storage.get_account_by_login(login)[0]
         except Exception:
             return 'Пользователь с таким логином уже сущестыует!'
