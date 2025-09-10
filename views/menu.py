@@ -1,6 +1,5 @@
-from batle import *
-from inventory import *
-from settings import *
+from ..game.battle import *
+
 
 while True:
     n = int(input('1 - Выйти на арену\n2 - Войти в инвентарь\n3 - Настройки аккаунта\тВыберете один из пунктов'))

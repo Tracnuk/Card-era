@@ -1,7 +1,7 @@
-from account_db_repository import AccountDbRepository
-from persom_db_repository import PersonDbRepository
-from account import Account
-from person import Person
+from ..repositories.account_db_repository import AccountDbRepository
+from ..repositories.person_db_repository import PersonDbRepository
+from ..models.account import Account
+from ..models.person import Person
 
 person_db_storage = PersonDbRepository()
 acount_db_storage = AccountDbRepository()

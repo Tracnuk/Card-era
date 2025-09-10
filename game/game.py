@@ -1,6 +1,6 @@
-from account_service import AccountService
-from person import Person
-from person_service import PersonService
+from ..services.account_service import AccountService
+from ..models.person import Person
+from ..services.person_service import PersonService
 
 
 class Game:

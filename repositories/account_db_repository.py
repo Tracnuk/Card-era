@@ -47,9 +47,9 @@ class AccountsDbRepository:
                 password = ?,
             WHERE id = ?
         ''', (
-            kwargs['nickname']
+            kwargs['nickname'],
             kwargs['login'],
-            kwargs['password'],
+            kwargs['password']
         ))
         self.conn.commit()
 
