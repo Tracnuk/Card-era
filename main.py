@@ -1,5 +1,6 @@
 from Game import Game
 from const import *
+from user_regestration import UserRegistrationDTO
 
 game = Game()
 
@@ -11,8 +12,8 @@ while True:
             login = input('Введите логин: ')
             password = input('Введите пророль: ')
             first_name = input('Введите своё имя: ')
-            data = {'nickname': nickname, 'login': login, 'password': password, 'firt_name': first_name}
-            game.(data)
+            data = UserRegistrationDTO(nickname, login, password, first_name)
+            game.register(data)
         case 2:
             
         case 3:
