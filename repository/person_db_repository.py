@@ -26,6 +26,7 @@ class PersonDbRepository:
             VALUES (?, ?, ?, ?, ?, ?)
         ''', (person.first_name, person.surname, person.last_name, person.email, person.phone_number))
         self.conn.commit()
+        
 
     def get_person_by_id(self, person_id):
         self.cursor.execute('''SELECT * From persons WHERE id = ?''', (person_id, ))

@@ -1,6 +1,6 @@
 class Person:
-    def __init__(self, person_id, first_name, surname='',
-                 last_name='', email='', phone_number='', account_id):
+    def __init__(self, person_id=-1, first_name, surname='',
+                 last_name='', email='', phone_number='', account_id=-1):
         self.person_id = person_id
         self.first_name = first_name
         self.surname = surname
