@@ -26,26 +26,26 @@ python views/main.py
 ## 📁 Структура проекта
 
 ```text
-Card-era/
-├── game/
+Card-era
+├── game
 │   ├── arena.py
 │   ├── battle.py
 │   └── game.py
-├── helpers/
+├── helpers
 │   ├── const.py
 │   └── user_registration.py
-├── models/
+├── models
 │   ├── account.py
 │   ├── card.py
 │   └── person.py
-├── repositories/
+├── repositories
 │   ├── account_db_repository.py
 │   ├── card_db_repository.py
 │   └── person_db_repository.py
-├── services/
+├── services
 │   ├── account_service.py
 │   └── person_service.py
-├── views/
+├── views
 │   ├── main.py
 │   └── menu.py
 ├── .gitignore
