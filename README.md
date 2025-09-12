@@ -10,14 +10,18 @@
 ```bash
 git clone https://github.com/Tracnuk/Card-era.git
 cd Card-era
-
+```
 ### 2. Установите зависимости (если есть)
-bash
+```bash
 pip install -r requirements.txt
+```
+
 3. Запустите игру
-bash
+```bash
 python views/main.py
 Требуется Python 3.10+
+```
+
 
 📁 Структура проекта
 Код
