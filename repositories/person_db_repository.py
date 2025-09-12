@@ -1,7 +1,7 @@
 import sqlite3
 
-class PersonDbRepository:
-    def __init__(self, db_path='Persons'):
+class PersonsDbRepository:
+    def __init__(self, db_path='persons.db'):
         self.conn = sqlite3.connect(db_path)
         self.cursor = self.conn.cursor()
         self.__create_table()
@@ -27,6 +27,9 @@ class PersonDbRepository:
         ''', (person.first_name, person.surname, person.last_name, person.email, person.phone_number))
         self.conn.commit()
         
+        self.cursor.execute("SELECT last_insert_rowid()")
+        person_id = self.cursor.fetchone()[0]
+        return person_id
 
     def get_person_by_id(self, person_id):
         self.cursor.execute('''SELECT * From persons WHERE id = ?''', (person_id, ))
@@ -38,18 +41,21 @@ class PersonDbRepository:
         persons = self.cursor.fetchall()
         return persons
         
-    def update_person(self, person_id, **kwargs):
+    def update_person(self, person_id, account_id=None, **kwargs):
+        if account_id == None:
+            account_id = self.cursor.fetchone()[6]
         self.cursor.execute('''UPDATE persons
                             SET first_name = ?,
-                            surname = ?
+                            surname = ?,
                             last_name = ?,
                             email = ?,
-                            phone_number = ?
-                            WHERE id = ?''', (kwargs['first_name'], kwargs['surname'], kwargs['last_name'], kwargs['email'], kwargs['phone_number'], person_id))
+                            phone_number = ?,
+                            account_id = ?,
+                            WHERE id = ?''', (kwargs['first_name'], kwargs['surname'], kwargs['last_name'], kwargs['email'], kwargs['phone_number'], account_id, person_id))
         self.conn.commit()
         
     def delete_person(self, person_id):
-        self.cursor.execute('DELETE FROM persons WHERE id = ?', (person_id,))
+        self.cursor.execute('DELETE FROM persons WHERE id = ?', (person_id, ))
         self.conn.commit()
     
     def close(self):

@@ -1,6 +1,11 @@
-from Game import Game
-from const import *
-from user_regestration import UserRegistrationDTO
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from game.game import Game
+from helpers.const import *
+from models.user_registration import UserRegistrationDTO
 
 game = Game()
 
@@ -15,8 +20,8 @@ while True:
             data = UserRegistrationDTO(nickname, login, password, first_name)
             game.register(data)
         case 2:
-            
+            pass
         case 3:
-            
+            pass
         case 0:
-            
+            pass

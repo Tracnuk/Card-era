@@ -1,32 +1,36 @@
-from account_db_repository import AccountDbRepository
-from person_db_repository import PersonDbRepository
-from account import Account
-from person import Person
+import sys
+import os
 
-person_db_storage = PersonDbRepository()
-account_db_storage = AccountDbRepository()
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from repositories.account_db_repository import AccountsDbRepository
+from repositories.person_db_repository import PersonsDbRepository
+from models.account import Account
+from models.person import Person
+
+person_db_storage = PersonsDbRepository()
+account_db_storage = AccountsDbRepository()
 
 class AccountService:
     def create_account(self, user_data):
         global auth_account
         try:
             account_db_storage.add_account(Account(user_data.nickname, user_data.login, user_data.password))
-            auth_account = account_db_storage.get_account_by_login(login)[0]
+            auth_account = account_db_storage.get_account_by_login(user_data.login)[0]
             return auth_account
         except Exception:
             return 'Пользователь с таким логином уже сущестыует!'
         
     def delete_account(self):
-        if auth_user != None:
-            account_db_storage.delete_account(aurh_user)
+        try:
+            account_db_storage.delete_account(auth_account)
             return 'Аккаунт был удалён.'
-        else:
+        except:
             return 'Вы не вошли в аккаунт!'
 
     def update_account(self, new_nickname, new_login, new_password):
         try:
-            account_id = auth_account
-            account_db_storage.update_account(account_id, nickname = new_nickname, login = new_login, password = new_password)
+            account_db_storage.update_account(account_id = auth_account, nickname = new_nickname, login = new_login, password = new_password)
             return 'Данные обновлены.'
         except:
             return 'Вы не вошли в аккаунт!'
