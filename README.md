@@ -24,37 +24,37 @@ python views/main.py
 ---
 
 ### 📁 Структура проекта
-Код
-Card-era/
-├── game/                        # Логика игрового процесса
-│   ├── arena.py                # Арена и логика боёв
-│   ├── battle.py               # Механика боя
-│   └── game.py                 # Управление игровым циклом
-│
-├── helpers/                    # Вспомогательные модули
-│   ├── const.py                # Константы
-│   └── user_registration.py    # Регистрация пользователя
-│
-├── models/                     # Модели данных
-│   ├── account.py              # Аккаунт игрока
-│   ├── card.py                 # Карты и их свойства
-│   └── person.py               # Персонажи
-│
-├── repositories/              # Работа с базой данных
-│   ├── account_db_repository.py
-│   ├── card_db_repository.py
-│   └── person_db_repository.py
-│
-├── services/                  # Сервисная логика
-│   ├── account_service.py
-│   └── person_service.py
-│
-├── views/                     # Представления и интерфейс
-│   ├── main.py                # Точка входа
-│   └── menu.py                # Главное меню
-│
-├── .gitignore
-└── README.md
+
+Card-era/:
+├── game/                        # Логика игрового процесса:
+│   ├── arena.py                # Арена и логика боёв:
+│   ├── battle.py               # Механика боя:
+│   └── game.py                 # Управление игровым циклом:
+│:
+├── helpers/                    # Вспомогательные модули:
+│   ├── const.py                # Константы:
+│   └── user_registration.py    # Регистрация пользователя:
+│:
+├── models/                     # Модели данных:
+│   ├── account.py              # Аккаунт игрока:
+│   ├── card.py                 # Карты и их свойства:
+│   └── person.py               # Персонажи:
+│:
+├── repositories/              # Работа с базой данных:
+│   ├── account_db_repository.py:
+│   ├── card_db_repository.py:
+│   └── person_db_repository.py:
+│:
+├── services/                  # Сервисная логика:
+│   ├── account_service.py:
+│   └── person_service.py:
+│:
+├── views/                     # Представления и интерфейс:
+│   ├── main.py                # Точка входа:
+│   └── menu.py                # Главное меню:
+│:
+├── .gitignore:
+└── README.md:
 
 
 ---
@@ -107,5 +107,5 @@ Card-era/
 ---
 
 ### 🧠 Авторы:
-Костя Смирнов
+Костя Смирнов:
 Мирослав Паули-Ивлев
