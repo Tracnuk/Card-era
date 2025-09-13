@@ -35,4 +35,14 @@ class AccountService:
         except:
             return 'Вы не вошли в аккаунт!'
         
-    #get_account_by_login
+    def get_account_by_id(self, account_id=None):
+        if account_id != None:
+            return account_db_storage.get_account_by_id(person_id)
+        else:
+            return account_db_storage.get_account_by_id(auth_account)
+
+    def get_account_by_login(self, login):
+        try:
+            return account_db_storage.get_account_by_id(login)
+        except:
+            return 'Такого логина не существует!'
