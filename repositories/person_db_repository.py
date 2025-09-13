@@ -23,7 +23,7 @@ class PersonsDbRepository:
     def add_person(self, person):
         self.cursor.execute('''
             INSERT INTO persons (first_name, surname, last_name, email, phone_number)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
         ''', (person.first_name, person.surname, person.last_name, person.email, person.phone_number))
         self.conn.commit()
         
