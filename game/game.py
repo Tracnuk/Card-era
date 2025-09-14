@@ -15,9 +15,18 @@ class Game:
 
     def register(self, user_data):
         person_id = person.create_person(user_data.first_name)
-        if isinstance((account_id := account.create_account(user_data)), str):
+        account_id = account.create_account(user_data)
+        if isinstance((account_id), str):
             return account_id
         else:
-            user = person.get_person_by_id(person_id)
-            person.update_person(user[user_data.first_name], account_id)
+            person.update_person(user_data.first_name, account_id)
             return 'Добро пожаловать'
+        
+    def get_user(self):
+        user_account = account.get_account_by_id()
+        user_person = person.get_person_by_id()
+        return [user_account, user_person]
+
+    def get_all_users(self):
+        users_persons = person.get_all_persons()
+        users_accounts = account.get_all_accounts()

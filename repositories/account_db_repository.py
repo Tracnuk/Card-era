@@ -7,7 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from models.person import Person
 
 class AccountsDbRepository:
-    def __init__(self, db_path='accounts.db'):
+    def __init__(self, db_path='game.db'):
         self.conn = sqlite3.connect(db_path)
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.cursor = self.conn.cursor()
@@ -17,7 +17,7 @@ class AccountsDbRepository:
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS account (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                person_id INTEGER
+                person_id INTEGER,
                 nickname TEXT UNIQUE NOT NULL,
                 login TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
@@ -37,14 +37,17 @@ class AccountsDbRepository:
 
     def get_account_by_login(self, login):
         self.cursor.execute('SELECT * FROM account WHERE login = ?', (login,))
+        self.conn.commit()
         return self.cursor.fetchone()
 
     def get_account_by_id(self, account_id):
         self.cursor.execute('SELECT * FROM account WHERE id = ?', (account_id,))
+        self.conn.commit()
         return self.cursor.fetchone()
 
     def get_all_accounts(self):
         self.cursor.execute('SELECT * FROM account')
+        self.conn.commit()
         return self.cursor.fetchall()
 
     def update_account(self, **kwargs):

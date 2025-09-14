@@ -37,10 +37,20 @@ class AccountService:
         
     def get_account_by_id(self, account_id=None):
         if account_id != None:
-            return account_db_storage.get_account_by_id(person_id)
+            return account_db_storage.get_account_by_id(account_id)
         else:
-            return account_db_storage.get_account_by_id(auth_account)
+            try:
+                return account_db_storage.get_account_by_id(auth_account)
+            except:
+                return "Вы не вошли в аккаунт"
 
+    def get_all_account(self):
+        result = account_db_storage.get_accounts()
+        if result and len(result) > 0:
+            accounts = [__convert_data_from_user_model(data) for data in result]
+            return accounts
+        return ['Нет данных']
+                
     def get_account_by_login(self, login):
         try:
             return account_db_storage.get_account_by_id(login)

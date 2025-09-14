@@ -9,7 +9,7 @@ from models.account import Account
 from models.person import Person
 
 person_db_storage = PersonsDbRepository()
-acount_db_storage = AccountsDbRepository()
+acсount_db_storage = AccountsDbRepository()
 
 class PersonService:
     def create_person(self, first_name):
@@ -36,11 +36,13 @@ class PersonService:
         if person_id != None:
             return person_db_storage.get_person_by_id(person_id)
         else:
-            return person_db_storage.get_person_by_id(auth_person)
-
-    def get_persons(self):
+            try:
+                return person_db_storage.get_person_by_id(auth_person)
+            except:
+                return "Вы не вошли в аккаунт"
+            
+    def get_all_persons(self):
         result = person_db_storage.get_persons()
         if result and len(result) > 0:
-            persons = [__convert_data_from_user_model(data) for data in result]
             return persons
         return ['Нет данных']

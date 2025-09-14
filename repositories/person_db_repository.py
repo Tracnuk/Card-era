@@ -1,7 +1,7 @@
 import sqlite3
 
 class PersonsDbRepository:
-    def __init__(self, db_path='persons.db'):
+    def __init__(self, db_path='game.db'):
         self.conn = sqlite3.connect(db_path)
         self.cursor = self.conn.cursor()
         self.__create_table()
@@ -50,7 +50,7 @@ class PersonsDbRepository:
                             last_name = ?,
                             email = ?,
                             phone_number = ?,
-                            account_id = ?,
+                            account_id = ?
                             WHERE id = ?''', (kwargs['first_name'], kwargs['surname'], kwargs['last_name'], kwargs['email'], kwargs['phone_number'], account_id, person_id))
         self.conn.commit()
         

@@ -18,10 +18,12 @@ while True:
             password = input('Введите пророль: ')
             first_name = input('Введите своё имя: ')
             data = UserRegistrationDTO(nickname, login, password, first_name)
-            game.register(data)
+            print(game.register(data))
         case 2:
             pass
         case 3:
             pass
+        case 4:
+            print(game.get_user())
         case 0:
             pass
