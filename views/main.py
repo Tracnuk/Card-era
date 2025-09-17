@@ -10,7 +10,7 @@ from models.user_registration import UserRegistrationDTO
 game = Game()
 
 while True:
-    status = int(input(menu))
+    status = int(input(Register_menu))
     match(status):
         case 1:
             nickname = input('Введите никнэйм: ')
