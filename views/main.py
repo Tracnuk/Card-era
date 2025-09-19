@@ -10,7 +10,7 @@ from models.user_registration import UserRegistrationDTO
 game = Game()
 
 while True:
-    status = int(input(Register_menu))
+    status = int(input(menu))
     match(status):
         case 1:
             nickname = input('Введите никнэйм: ')
@@ -20,10 +20,17 @@ while True:
             data = UserRegistrationDTO(nickname, login, password, first_name)
             print(game.register(data))
         case 2:
-            pass
+            login = input('Введите логин: ')
+            password = input('Введите пророль: ')
+            print(game.login(login, password))
         case 3:
             pass
         case 4:
             print(game.get_user())
+        case 5:
+            for users in game.get_all_users():
+                for user in users:
+                    print(user)
+                    print('_' * 10)
         case 0:
             pass

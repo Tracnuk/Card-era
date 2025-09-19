@@ -18,7 +18,7 @@ while True:
         case 4:
             shop()
         case 0:
-            input('Вы уверены, что хотите выйти?) \n1 - ДА\n2 - НЕТ')
+            input('Вы уверены, что хотите выйти?\n1 - ДА\n2 - НЕТ')
             if int(input()) == 1:
                 break
         case _:

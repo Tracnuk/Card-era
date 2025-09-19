@@ -26,32 +26,39 @@ class PersonsDbRepository:
             VALUES (?, ?, ?, ?, ?)
         ''', (person.first_name, person.surname, person.last_name, person.email, person.phone_number))
         self.conn.commit()
-        
-        self.cursor.execute("SELECT last_insert_rowid()")
-        person_id = self.cursor.fetchone()[0]
-        return person_id
-
+        return self.cursor.lastrowid
+    
     def get_person_by_id(self, person_id):
         self.cursor.execute('''SELECT * From persons WHERE id = ?''', (person_id, ))
         person = self.cursor.fetchone()
+        self.conn.commit()
         return person
     
     def get_persons(self):
         self.cursor.execute('''SELECT * From persons''')
         persons = self.cursor.fetchall()
+        self.conn.commit()
         return persons
         
-    def update_person(self, person_id, account_id=None, **kwargs):
-        if account_id == None:
-            account_id = self.cursor.fetchone()[6]
-        self.cursor.execute('''UPDATE persons
-                            SET first_name = ?,
-                            surname = ?,
-                            last_name = ?,
-                            email = ?,
-                            phone_number = ?,
-                            account_id = ?
-                            WHERE id = ?''', (kwargs['first_name'], kwargs['surname'], kwargs['last_name'], kwargs['email'], kwargs['phone_number'], account_id, person_id))
+    def update_person(self, person_id, first_name, surname, last_name, email, phone_number, account_id=None):
+        self.cursor.execute('''
+            UPDATE persons
+            SET first_name = ?,
+                surname = ?,
+                last_name = ?,
+                email = ?,
+                phone_number = ?,
+                account_id = ?
+            WHERE id = ?
+        ''', (
+            first_name,
+            surname,
+            last_name,
+            email,
+            phone_number,
+            account_id,
+            person_id
+        ))
         self.conn.commit()
         
     def delete_person(self, person_id):
