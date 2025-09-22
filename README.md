@@ -15,11 +15,8 @@
 
 ## ⚙️ Технологии
 
-- Python  
-- SQLite3  
-- CLI-интерфейс (терминал)  
-- Windows  
-- Telegram Bot (в планах)
+- [Python](https://www.python.org/)
+- [SQLite3](https://docs.python.org/3/library/sqlite3.html)  
 
 ---
 
