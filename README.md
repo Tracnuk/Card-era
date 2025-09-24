@@ -35,7 +35,7 @@
 
 ### 2. Клонируйте репозиторий
 ```bash
-git clone https://github.com/<ваш_пользователь>/Card-era.git
+git clone https://github.com/Tracnuk/Card-era.git
 ```
 
 
