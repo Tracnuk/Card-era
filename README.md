@@ -17,7 +17,6 @@
 
 - [Python](https://www.python.org/)
 - [SQLite3](https://docs.python.org/3/library/sqlite3.html)  
-- [GitBash](https://git-scm.com/downloads)
 
 
 ---
