@@ -1,13 +1,16 @@
 from colorama import init, Fore, Style
 init(autoreset=True)
 
+
 # -------------------------------
 # Меню регистрации
 # -------------------------------
 Register_menu = f'''{Fore.YELLOW}______________________________________________________________{Style.RESET_ALL}
 
+
              {Fore.LIGHTMAGENTA_EX} М Е Н Ю   Р Е Г И С Т Р А Ц И И {Style.RESET_ALL}
 {Fore.YELLOW}______________________________________________________________{Style.RESET_ALL}
+
 
                     {Fore.CYAN}1 - регистрация{Style.RESET_ALL}
                     {Fore.GREEN}2 - вход{Style.RESET_ALL}
@@ -56,3 +59,4 @@ print(Register_menu)
 #print(Game_field)
 
 input("\nНажмите Enter, чтобы выйти...")
+

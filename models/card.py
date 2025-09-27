@@ -1,6 +1,6 @@
 class Card:
-    def __init__(self, card_id, rarty, card_type, name, count, price,
-                 link_of_picture, use_for_battle=False):
+    def __init__(self, rarty, card_type, name, count, price,
+                 link_of_picture, use_for_battle=False, card_id=-1):
         self.id = card_id
         self.rarty = rarty
         self.type = card_type
@@ -11,7 +11,8 @@ class Card:
         self.use_for_battle = use_for_battle
         
     def __str__(self):
-        return '''редкость: {self.rarty}
+        return '''id: {self.card_id}
+редкость: {self.rarty}
 тип: {self.type}
 имя: {self.name}
 параметр: {self.count}

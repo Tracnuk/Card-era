@@ -23,34 +23,39 @@ class AccountsDbRepository:
                 password TEXT NOT NULL,
                 cash INTEGER,
                 level INTEGER,
-                FOREIGN KEY (person_id) REFERENCES Persons(id)
+                FOREIGN KEY (person_id) REFERENCES persons(id)
                 )
         ''')
         self.conn.commit()
 
-    def add_account(self, Account):
+    def add_account(self, account):
         self.cursor.execute('''
-            INSERT INTO account (nickname, login, password, cash, level)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (Account.nickname, Account.login, Account.password, Account.cash, Account.level))
+            INSERT INTO account (person_id, nickname, login, password, cash, level)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (account.person_id, account.nickname, account.login, account.password, account.cash, account.level))
         self.conn.commit()
+        return self.cursor.lastrowid 
 
     def get_account_by_login(self, login):
         self.cursor.execute('SELECT * FROM account WHERE login = ?', (login,))
-        self.conn.commit()
         return self.cursor.fetchone()
 
     def get_account_by_id(self, account_id):
         self.cursor.execute('SELECT * FROM account WHERE id = ?', (account_id,))
-        self.conn.commit()
         return self.cursor.fetchone()
 
     def get_all_accounts(self):
         self.cursor.execute('SELECT * FROM account')
-        self.conn.commit()
         return self.cursor.fetchall()
 
-    def update_account(self, **kwargs):
+    def verification(self, login, password):
+        self.cursor.execute('SELECT password FROM account WHERE login = ?', (login,))
+        row = self.cursor.fetchone()
+        if row and row[0] == password:
+            return True
+        return False
+
+    def update_accounts(self, **kwargs):
         self.cursor.execute('''
             UPDATE account
             SET nickname = ?,
