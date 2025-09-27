@@ -13,26 +13,26 @@ account_db_storage = AccountsDbRepository()
 
 class PersonService:
     def __init__(self):
-        self.auth_person = None
+        self.current_person_id = None
         
     def create_person(self, first_name):
         person = Person(first_name)
-        self.auth_person = person_db_storage.add_person(person)
-        return self.auth_person
+        self.current_person_id = person_db_storage.add_person(person)
+        return self.current_person_id
         
     def delete_person(self):
-        if self.auth_person != None:
-            person_db_storage.delete_person(aurh_person)
+        if self.current_person_id != None:
+            person_db_storage.delete_person(self.current_person_id)
             return 'Пользователь был удалён.'
         else:
             return 'Вы не вошли в аккаунт!'
 
     def login(self, person_id):
-        self.auth_person = person_id
+        self.current_person_id = person_id
 
     def update_person(self, new_first_name, account_id, new_surname='', new_last_name='', new_email='', new_phone_number=''):
-        if self.auth_person != None:
-            person_id = self.auth_person
+        if self.current_person_id != None:
+            person_id = self.current_person_id
             person_db_storage.update_person(person_id, new_first_name, new_surname, new_last_name, new_email, new_phone_number, account_id)
             return 'Данные обновлены.'
         else:
@@ -41,8 +41,8 @@ class PersonService:
     def get_person_by_id(self, person_id=None):
         if person_id != None:
             return person_db_storage.get_person_by_id(person_id)
-        elif self.auth_person != None:
-            return person_db_storage.get_person_by_id(self.auth_person)
+        elif self.current_person_id != None:
+            return person_db_storage.get_person_by_id(self.current_person_id)
         else:
             return "Вы не вошли в аккаунт!"
             

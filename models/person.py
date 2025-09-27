@@ -10,7 +10,9 @@ class Person:
         self.account_id = account_id
         
     def __str__(self):
-        return f'''Имя: {self.first_name}
+        return f'''person_id: {self.person_id}
+account_id: {self.account_id}
+Имя: {self.first_name}
 Фамилия: {self.surname}
 Отчество: {self.last_name}
 Почта: {self.email}
