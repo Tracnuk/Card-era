@@ -40,7 +40,7 @@ class CardDbRepository:
                                 SET price = ?,
                                 SET link_of_picture = ?,
                                 WHERE id = ?''', (card.rarity, card.type,card.name, card.count, card.price,
-                                                        card.link_of_picture, card.id)))
+                                                        card.link_of_picture, card.id))
 
             print('card updated')
         except:

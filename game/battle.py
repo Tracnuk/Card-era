@@ -8,3 +8,6 @@ def shop():
 
 def inventory():
     pass
+
+def settings():
+    pass
