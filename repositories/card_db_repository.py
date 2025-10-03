@@ -21,43 +21,47 @@ class CardDbRepository:
     def add_card(self, card):
         try:
             self.cursor.execute('''
-                INSERT INTO cards (id, rarity, type, name, count, price, link_of_picture)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                (card.id, card.rarity, card.type, card.name, card.count, card.price,card.link_of_picture))
+                INSERT INTO cards (rarity, type, name, count, price, link_of_picture)
+                VALUES (?, ?, ?, ?, ?, ?)''',
+                (card.rarity, card.type, card.name, card.count, card.price, card.link_of_picture))
             self.conn.commit()
         except sqlite3.IntegrityError:
-            print('u already have this card')
+            print('Ошибка при создании карты')
 
 
     def update_card(self, card_id, card):
         try:
-            self.cursor.execute('''UPDATE cards
-                                SET id = ?,
-                                SET rarity = ?,
-                                SET type = ?,
-                                SET name = ?,
-                                SET count = ?,
-                                SET price = ?,
-                                SET link_of_picture = ?,
-                                WHERE id = ?''', (card.rarity, card.type,card.name, card.count, card.price,
-                                                        card.link_of_picture, card.id))
-
-            print('card updated')
+            self.cursor.execute('''
+                UPDATE cards
+                SET rarity = ?,
+                    type = ?,
+                    name = ?,
+                    count = ?,
+                    price = ?,
+                    link_of_picture = ?
+                WHERE id = ?''', (card.rarity, card.type, card.name, card.count, card.price,
+                                        card.link_of_picture, card_id))
+            self.conn.commit()
         except:
-            print("card update failed")
+            print("Ошибка при обновление карты")
 
-    def get_card(self, card_id):
+    def get_card_by_id(self, card_id):
         self.cursor.execute('''SELECT * FROM cards WHERE id = ?''', (card_id,))
         card = self.cursor.fetchone()
         if card:
             return card
         else:
             return None
-
-    def delete_card(self, card_id):
-        self.cursor.execute('DELETE card FROM cards WHERE id = ?', (card_id,))
+        
+    def get_all_cards(self):
+        self.cursor.execute('''SELECT * From cards''')
+        cards = self.cursor.fetchall()
         self.conn.commit()
-        print(f'Card with id {id} deleted')
+        return cards
+    
+    def delete_card(self, card_id):
+        self.cursor.execute('DELETE FROM cards WHERE id = ?', (card_id,))
+        self.conn.commit()
         
 
     def close(self):

@@ -1,22 +1,20 @@
 class Card:
-    def __init__(self, rarty, card_type, name, count, price,
-                 link_of_picture, use_for_battle=False, card_id=-1):
+    def __init__(self, rarity, type_card, name, count, price,
+                 link_of_picture, card_id=-1):
         self.id = card_id
-        self.rarty = rarty
-        self.type = card_type
+        self.rarity = rarity
+        self.type = type_card
         self.name = name
         self.count = count
         self.price = price
         self.link_of_picture = link_of_picture
-        self.use_for_battle = use_for_battle
         
     def __str__(self):
-        return '''id: {self.card_id}
-редкость: {self.rarty}
+        return f'''id: {self.id}
+редкость: {self.rarity}
 тип: {self.type}
 имя: {self.name}
 параметр: {self.count}
 цена: {self.price}
 иконка: {self.link_of_picture}
-есть ли в калоде: {self.use_for_battle}
 '''
