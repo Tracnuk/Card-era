@@ -14,6 +14,8 @@ class CardDbRepository:
                 type TEXT NOT NULL,
                 name TEXT NOT NULL,
                 count INTEGER,
+                hp INTEGER,
+                damage INTEGER,
                 price INTEGER NOT NULL,
                 link_of_picture TEXT)''')
         self.conn.commit()
@@ -21,9 +23,9 @@ class CardDbRepository:
     def add_card(self, card):
         try:
             self.cursor.execute('''
-                INSERT INTO cards (rarity, type, name, count, price, link_of_picture)
-                VALUES (?, ?, ?, ?, ?, ?)''',
-                (card.rarity, card.type, card.name, card.count, card.price, card.link_of_picture))
+                INSERT INTO cards (rarity, type, name, count, hp, damage, price, link_of_picture)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                (card.rarity, card.type, card.name, card.count, card.hp, card.damage, card.price, card.link_of_picture))
             self.conn.commit()
         except sqlite3.IntegrityError:
             print('Ошибка при создании карты')
@@ -37,9 +39,11 @@ class CardDbRepository:
                     type = ?,
                     name = ?,
                     count = ?,
+                    hp = ?,
+                    damage = ?,
                     price = ?,
                     link_of_picture = ?
-                WHERE id = ?''', (card.rarity, card.type, card.name, card.count, card.price,
+                WHERE id = ?''', (card.rarity, card.type, card.name, card.count, card.hp, card.damage, card.price,
                                         card.link_of_picture, card_id))
             self.conn.commit()
         except:

@@ -1,11 +1,13 @@
 class Card:
-    def __init__(self, rarity, type_card, name, count, price,
+    def __init__(self, rarity, type_card, name, count, hp, damage, price,
                  link_of_picture, card_id=-1):
         self.id = card_id
         self.rarity = rarity
         self.type = type_card
         self.name = name
         self.count = count
+        self.hp = hp
+        self.damage = damage
         self.price = price
         self.link_of_picture = link_of_picture
         
@@ -15,6 +17,8 @@ class Card:
 тип: {self.type}
 имя: {self.name}
 параметр: {self.count}
+здоровье: {self.hp}
+Урон: {self.damage}
 цена: {self.price}
 иконка: {self.link_of_picture}
 '''
