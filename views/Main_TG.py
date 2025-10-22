@@ -1,12 +1,15 @@
 import asyncio
+import sys
+import os
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.filters import CommandStart, Command
-import os
-import sys
+from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage
 
-# Добавляем пути для импорта твоих модулей
-sys.path.append(os.path.join(os.path.dirname(__file__), '.'))
+# === Добавляем корень проекта для импорта модулей ===
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from game.battle import *
 from game.game import Game
@@ -14,12 +17,26 @@ from helpers.const import *
 from models.user_registration import UserRegistrationDTO
 
 # === Настройки ===
-TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA"
+TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA"  
 game = Game()
 
 # === Инициализация бота ===
 bot = Bot(token=TOKEN)
-dp = Dispatcher()
+storage = MemoryStorage()
+dp = Dispatcher(storage=storage)
+
+
+# === FSM состояния ===
+class RegisterStates(StatesGroup):
+    nickname = State()
+    login = State()
+    password = State()
+    name = State()
+
+
+class LoginStates(StatesGroup):
+    login = State()
+    password = State()
 
 
 # === Главное меню регистрации ===
@@ -47,42 +64,42 @@ def get_game_menu():
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 
-# === Старт ===
+# === Команда /start ===
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
     await message.answer("👋 Добро пожаловать в игру!\nВыберите действие:", reply_markup=get_register_menu())
 
 
-# === Обработка кнопок регистрации ===
+# === Регистрация ===
 @dp.callback_query(F.data == "register")
-async def register_user(callback: types.CallbackQuery):
+async def register_user(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Введите никнейм:")
-    await dp.current_state(user=callback.from_user.id).set_state("register_nickname")
+    await state.set_state(RegisterStates.nickname)
 
 
-@dp.message(F.text, state="register_nickname")
-async def get_nickname(message: types.Message, state):
+@dp.message(F.text, RegisterStates.nickname)
+async def get_nickname(message: types.Message, state: FSMContext):
     await state.update_data(nickname=message.text)
     await message.answer("Введите логин:")
-    await state.set_state("register_login")
+    await state.set_state(RegisterStates.login)
 
 
-@dp.message(F.text, state="register_login")
-async def get_login(message: types.Message, state):
+@dp.message(F.text, RegisterStates.login)
+async def get_login(message: types.Message, state: FSMContext):
     await state.update_data(login=message.text)
     await message.answer("Введите пароль:")
-    await state.set_state("register_password")
+    await state.set_state(RegisterStates.password)
 
 
-@dp.message(F.text, state="register_password")
-async def get_password(message: types.Message, state):
+@dp.message(F.text, RegisterStates.password)
+async def get_password(message: types.Message, state: FSMContext):
     await state.update_data(password=message.text)
     await message.answer("Введите имя:")
-    await state.set_state("register_name")
+    await state.set_state(RegisterStates.name)
 
 
-@dp.message(F.text, state="register_name")
-async def get_name(message: types.Message, state):
+@dp.message(F.text, RegisterStates.name)
+async def get_name(message: types.Message, state: FSMContext):
     data = await state.get_data()
     user_data = UserRegistrationDTO(
         nickname=data['nickname'],
@@ -97,20 +114,20 @@ async def get_name(message: types.Message, state):
 
 # === Вход ===
 @dp.callback_query(F.data == "login")
-async def login_user(callback: types.CallbackQuery):
+async def login_user(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.answer("Введите логин:")
-    await dp.current_state(user=callback.from_user.id).set_state("login_login")
+    await state.set_state(LoginStates.login)
 
 
-@dp.message(F.text, state="login_login")
-async def get_login_input(message: types.Message, state):
+@dp.message(F.text, LoginStates.login)
+async def get_login_input(message: types.Message, state: FSMContext):
     await state.update_data(login=message.text)
     await message.answer("Введите пароль:")
-    await state.set_state("login_password")
+    await state.set_state(LoginStates.password)
 
 
-@dp.message(F.text, state="login_password")
-async def get_password_input(message: types.Message, state):
+@dp.message(F.text, LoginStates.password)
+async def get_password_input(message: types.Message, state: FSMContext):
     data = await state.get_data()
     result = game.login(data['login'], message.text)
     await message.answer(result, reply_markup=get_register_menu())
@@ -179,7 +196,7 @@ async def delete_user(callback: types.CallbackQuery):
 
 # === Запуск ===
 async def main():
-    print("Бот запущен...")
+    print("✅ Бот запущен и слушает сообщения...")
     await dp.start_polling(bot)
 
 
