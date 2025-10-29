@@ -42,7 +42,7 @@ class LoginStates(StatesGroup):
 # === Главное меню регистрации ===
 def get_register_menu():
     kb = [
-        [InlineKeyboardButton(text="📝 Регистрация", callback_data="register")],
+        [InlineKeyboardButton(text= '📝 Регистрация', callback_data="register")],
         [InlineKeyboardButton(text="🔐 Вход", callback_data="login")],
         [InlineKeyboardButton(text="❌ Удалить аккаунт", callback_data="delete_user")],
         [InlineKeyboardButton(text="🎮 Играть", callback_data="play")],
@@ -202,3 +202,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+ 
