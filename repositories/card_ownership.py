@@ -10,36 +10,33 @@ class CardOwnership:
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS CardOwnerships (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_card INTEGER ,
-                id_account NTEGER ,
+                id_card INTEGER,
+                id_account NTEGER
                )''')
         self.conn.commit()
 
-    def add_card(self, card):
+    def add_card_and_account(self, card_id, account_id):
         try:
             self.cursor.execute('''
-                INSERT INTO CardOwnership (id_card,id_account)
-                VALUES (?, ?, ?)''',
-                (CardOwnership.id,CardOwnership.id_card,CardOwnership.id_account))
+                INSERT INTO CardOwnership (id_card, id_account)
+                VALUES (?, ?)''',
+                (card_id, account_id))
             self.conn.commit()
         except sqlite3.IntegrityError:
-            print('card already exists on account')
-
+            print('Ошибка при создании связи')
     
-    def get_card(self, id_account):
-        self.cursor.execute('''SELECT * FROM CardOwnerships WHERE  = ?''', (id_account,))
+    def get_cards_in_account(self, id_account):
+        self.cursor.execute('''SELECT * FROM CardOwnerships WHERE id_account = ?''', (id_account,))
         CardOwnership = self.cursor.fetchone()
         if CardOwnership:
             return CardOwnership
         else:
             return None
 
-    
-
-    def delete_card(self, id):
-        self.cursor.execute('DELETE CardOwnership FROM CardOwnerships WHERE id = ?', (id,))
+    def delete_card_and_account(self, id_account):
+        self.cursor.execute('DELETE CardOwnership FROM CardOwnerships WHERE id_account = ?', (id_account,))
         self.conn.commit()
-        print(f'Card with id{id}deleted')
+        return f'Катра по id {id_account} удалена!'
 
     def close(self):
         self.conn.close()

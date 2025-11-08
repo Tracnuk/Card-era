@@ -1,13 +1,6 @@
-
-
-def arena():
+def import_cards():
     pass
-
-def shop():
+def attak():
     pass
-
-def inventory():
-    pass
-
-def settings():
+def plant_card():
     pass

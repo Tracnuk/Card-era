@@ -4,7 +4,9 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from services.card_service import *
+from services.import_cards_from_CSV import ImportCSVService
 
+import_csv = ImportCSVService()
 cards = CardService()
 
 while True:
@@ -18,9 +20,10 @@ while True:
             count = input('Сила: ')
             hp = input('Здоровье: ')
             damage = input('Урон: ')
+            energy = input('Энергия: ')
             price = input('Цена: ')
             link_of_picture = input('Картинка: ')
-            cards.create_card(rarty, type_card, name, count, hp, damage, price, link_of_picture)
+            cards.create_card(rarty, type_card, name, count, hp, damage, energy, price, link_of_picture)
             print()
         case 2:
             print(cards.delete_card(input('id: ')))
@@ -33,15 +36,18 @@ while True:
             count = input('Сила: ')
             hp = input('Здоровье: ')
             damage = input('Урон: ')
+            energy = input('Энергия: ')
             price = input('Цена: ')
             link_of_picture = input('Картинка: ')
-            print(cards.update_card(card_id, rarty, type_card, name, count, hp, damage, price, link_of_picture), '\n')
+            print(cards.update_card(card_id, rarty, type_card, name, count, hp, damage, energy, price, link_of_picture), '\n')
         case 4:
             print(cards.get_card_by_id(input('id: ')), '\n')
         case 5:
             for card_object in cards.get_all_cards():
                 print(card_object)
             print()
+        case 6:
+            import_csv.import_data()
         case 0:
             break
         case _:

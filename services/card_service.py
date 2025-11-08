@@ -9,16 +9,16 @@ from models.card import Card
 card_db_storage = CardDbRepository()
 
 class CardService:
-    def create_card(self, rarity, card_type, name, count, hp, damage, price, link_of_picture):
-        card = Card(rarity, card_type, name, count, hp, damage, price, link_of_picture)
+    def create_card(self, rarity, card_type, name, count, hp, damage, energy, price, link_of_picture):
+        card = Card(rarity, card_type, name, count, hp, damage, energy, price, link_of_picture)
         card_db_storage.add_card(card)
         
     def delete_card(self, card_id):
         card_db_storage.delete_card(card_id)
         return 'Карта была удалена.'
 
-    def update_card(self, card_id, rarity, type_card, name, count, hp, damage, price, link_of_picture):
-        card_db_storage.update_card(card_id, Card(rarity, type_card, name, count, hp, damage, price, link_of_picture))
+    def update_card(self, card_id, rarity, type_card, name, count, hp, damage, energy, price, link_of_picture):
+        card_db_storage.update_card(card_id, Card(rarity, type_card, name, count, hp, damage, energy, price, link_of_picture))
         return 'Данные обновлены.'
     
     def get_card_by_id(self, card_id=None):
@@ -33,9 +33,10 @@ class CardService:
             type_card = data[2],
             name = data[3],
             count = data[4],
-            hp = data[5],
-            damage = data[6],
-            price = data[7],
-            link_of_picture = data[8]) for data in result]
+            hp = data[5] if data[5] else '-',
+            damage = data[6] if data[6] else '-',
+            energy = data[7] if data[7] else '-',
+            price = data[8] if data[8] else '-',
+            link_of_picture = data[9] if data[9] else '-') for data in result] 
             return cards
         return ['Нет данных']

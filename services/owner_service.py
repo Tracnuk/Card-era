@@ -6,7 +6,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from repositories.account_db_repository import AccountsDbRepository
 from repositories.person_db_repository import PersonsDbRepository
-from repositories.settings_db_repositoty import SettingsDbRepository
 from models.account import Account
 from models.person import Person
 
@@ -65,14 +64,14 @@ class AccountService:
     def get_all_accounts(self):
         result = account_db_storage.get_all_accounts()
         if result and len(result) > 0:
-            '''accounts = [Account(account_id = data[0],
+            accounts = [Account(account_id = data[0],
                 person_id = data[1],
                 nickname = data[2],
                 login = data[3],
                 password = data[4] if data[4] else '-',
                 cash = data[5] if data[5] else '-',
-                level = data[6] if data[6] else '-') for data in result]'''
-            return result#accounts
+                level = data[6] if data[6] else '-') for data in result]
+            return accounts
         return ['Нет данных']
                 
     def get_account_by_login(self, login):
