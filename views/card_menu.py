@@ -4,13 +4,13 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from services.card_service import *
-from services.import_cards_from_CSV import ImportCSVService
+from services.import_cards_from_XLSX import ImportXLSXService
 
-import_csv = ImportCSVService()
+import_xlsx = ImportXLSXService()
 cards = CardService()
 
 while True:
-    n = int(input('1-создание\n2-удаление\n3-обновление\n4-по id\n5-получить все\n'))
+    n = int(input('1-создание\n2-удаление\n3-обновление\n4-по id\n5-получить все\n6-считать из XLSX\n'))
     print()
     match(n):
         case 1:
@@ -47,7 +47,7 @@ while True:
                 print(card_object)
             print()
         case 6:
-            import_csv.import_data()
+            import_xlsx.import_data()
         case 0:
             break
         case _:
