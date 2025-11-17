@@ -5,7 +5,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from services.account_service import AccountService
 from services.person_service import PersonService
+from repositories.settings_db_repositoty import SettingsDbRepository
+from repositories.card_db_repository import CardDbRepository
 
+settings_db_storage = SettingsDbRepository()
+cards_db_storage = CardDbRepository()
 person = PersonService()
 account = AccountService()
 
@@ -20,6 +24,14 @@ class Game:
             return account_id
         else:
             person.update_person(user_data.first_name, account_id)
+            cards = []
+            for card_id in range(1, 6):
+                cards.append(cards_db_storage.get_card_by_id(card_id)[0])
+            settings_db_storage.add_cards_id(cards[0],
+                                             cards[1],
+                                             cards[2],
+                                             cards[3],
+                                             cards[4])
             return 'Добро пожаловать'
 
     def login(self, login, password):
