@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from services.account_service import AccountService
 from services.person_service import PersonService
-from repositories.settings_db_repositoty import SettingsDbRepository
+from repositories.settings_db_repository import SettingsDbRepository
 from repositories.card_db_repository import CardDbRepository
 
 settings_db_storage = SettingsDbRepository()

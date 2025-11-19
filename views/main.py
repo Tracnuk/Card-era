@@ -61,7 +61,7 @@ while True:
                     print(user)
                     print('_' * 10)
         case 0:
-            print('\nДосвидания!')
+            print('\nДо свидания!')
             break
         case _:
             print('Некорректный ввод, попробуйте ещё раз')
