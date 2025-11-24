@@ -38,7 +38,11 @@ while True:
                         print("Ошибка ввода")
                     match(n):
                         case 1:
-                            arena()
+                            while True:
+                                
+                                
+                                
+                                
                         case 2:
                             inventory()
                         case 3:

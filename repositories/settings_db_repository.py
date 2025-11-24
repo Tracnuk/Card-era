@@ -25,17 +25,17 @@ class SettingsDbRepository:
         ''')
         self.conn.commit()
 
-    def add_cards_id(self, card1_id, card2_id, card3_id, card4_id, card5_id):
+    def add_cards_id(self, account_id, card1_id, card2_id, card3_id, card4_id, card5_id):
         self.cursor.execute('''
-            INSERT INTO settings (card1_id, card2_id,
+            INSERT INTO settings (account_id, card1_id, card2_id,
             card3_id, card4_id, card5_id)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (card1_id, card2_id, card3_id, card4_id, card5_id))
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (account_id, card1_id, card2_id, card3_id, card4_id, card5_id))
         self.conn.commit()
         return self.cursor.lastrowid 
 
     def get_settings_by_id(self, account_id):
-        self.cursor.execute('SELECT * FROM account WHERE account_id = ?', (account_id,))
+        self.cursor.execute('SELECT * FROM settings WHERE account_id = ?', (account_id,))
         return self.cursor.fetchone()
     
     def update_cards(self, **kwargs):
