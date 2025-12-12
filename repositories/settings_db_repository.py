@@ -25,12 +25,12 @@ class SettingsDbRepository:
         ''')
         self.conn.commit()
 
-    def add_cards_id(self, card1_id, card2_id, card3_id, card4_id, card5_id):
+    def add_cards_id(self, account_id, card1_id, card2_id, card3_id, card4_id, card5_id):
         self.cursor.execute('''
-            INSERT INTO settings (card1_id, card2_id,
+            INSERT INTO settings (account_id, card1_id, card2_id,
             card3_id, card4_id, card5_id)
             VALUES (?, ?, ?, ?, ?)
-        ''', (card1_id, card2_id, card3_id, card4_id, card5_id))
+        ''', (account_id, card1_id, card2_id, card3_id, card4_id, card5_id))
         self.conn.commit()
         return self.cursor.lastrowid 
 
@@ -57,7 +57,7 @@ class SettingsDbRepository:
         ))
         self.conn.commit()
     
-    def delete_card(self, account_id):
+    def delete_cards(self, account_id):
         self.cursor.execute('DELETE FROM settings WHERE accont_id = ?', (account_id,))
         self.conn.commit()
 

@@ -21,6 +21,15 @@ class AccountService:
             account = Account(user_data.nickname, user_data.login, user_data.password, person_id)
             account_id = account_db_storage.add_account(account)
             self.current_account_id = account_id
+            cards = []
+            for card_id in range(1, 6):
+                cards.append(cards_db_storage.get_card_by_id(card_id)[0])
+            settings_db_storage.add_cards_id(account_id,
+                                             cards[0],
+                                             cards[1],
+                                             cards[2],
+                                             cards[3],
+                                             cards[4])
             return account_id
         except sqlite3.IntegrityError:
             return 'Пользователь с таким логином уже существует!'
