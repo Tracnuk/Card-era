@@ -38,17 +38,19 @@ while True:
                         print("Ошибка ввода")
                     match(n):
                         case 1:
+                            n = False
                             while True:
-                                
-                                
-                                
-                                
+                                if n:
+                                    n = False
+                                else:
+                                    n = True
+                                break
                         case 2:
                             inventory()
                         case 3:
-                            settings()
+                            
                         case 4:
-                            shop()
+                            
                         case 0:
                             input('Вы уверены, что хотите выйти?\n1 - ДА\n2 - НЕТ')
                             if int(input()) == 1:
