@@ -1,9 +1,10 @@
 import sys
 import os
+import random
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from game.battle import *
+from game.battle import Battle
 from game.game import Game
 from helpers.const import *
 from models.user_registration import UserRegistrationDTO
@@ -38,19 +39,37 @@ while True:
                         print("Ошибка ввода")
                     match(n):
                         case 1:
-                            n = False
+                            leave = False
+                            turn = random.randint(0, 1)
+                            battle = Battle()
                             while True:
-                                if n:
-                                    n = False
+                                if turn:
+                                    battle.giv_activ_cards(1)
+                                    print(*battle.get_battle_data())
+                                    while True:
+                                        match(int(input())):
+                                            case 1:
+                                                while (n := battle.plant_card(int(input()), int(input()))) != None:
+                                                    print(n)
+                                            case 2:
+                                                battle.attak_cards()
+                                                break
+                                            case 3:
+                                                leave = True
+                                                break
+                                    battle.attak_cards()
+                                    turn -= 1
+                                elif leave:
+                                    break
                                 else:
-                                    n = True
-                                break
+                                    turn += 1
+                                
                         case 2:
                             inventory()
                         case 3:
-                            
+                            settings()
                         case 4:
-                            
+                            shop()
                         case 0:
                             input('Вы уверены, что хотите выйти?\n1 - ДА\n2 - НЕТ')
                             if int(input()) == 1:

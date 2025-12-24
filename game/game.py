@@ -24,7 +24,7 @@ class Game:
             return account_id
         else:
             person.update_person(user_data.first_name, account_id)
-            return 'Добро пожаловать'
+        return 'Добро пожаловать'
 
     def login(self, login, password):
         asnwer = account.login(login, password)
@@ -35,6 +35,9 @@ class Game:
             return asnwer
         else:
             return account_data
+
+    def import_deck_of_cards(self):
+        return list(map(cards_db_storage.get_card_by_id, account.import_deck_of_cards()[1:]))
         
     def get_current_user(self):
         user_account = account.get_account_by_id()
