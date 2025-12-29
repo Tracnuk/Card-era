@@ -5,6 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from game.battle import *
 from game.game import Game
+from game.inventory import inventory
 from helpers.const import *
 from models.user_registration import UserRegistrationDTO
 
@@ -48,9 +49,9 @@ while True:
                         case 2:
                             inventory()
                         case 3:
-                            
+                            pass
                         case 4:
-                            
+                            pass
                         case 0:
                             input('Вы уверены, что хотите выйти?\n1 - ДА\n2 - НЕТ')
                             if int(input()) == 1:

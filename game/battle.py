@@ -6,15 +6,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from game.game import Game
 
-energy = 
+#energy = 0
 hp = 40
 
-area = [[0, 0, 0, 0, 0]
+area = [[0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0]]
 
 class Battle:
     def __init__(self):
-        self.deck_of_cards = game.import_deck_of_cards()[1:]
+        self.deck_of_cards = Game.import_deck_of_cards()[1:]
         self.activ_cards = []
 
     def get_battle_data(self):
