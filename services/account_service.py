@@ -48,7 +48,7 @@ class AccountService:
         else:
             return 'Вы не вошли в аккаунт!'
 
-    def update_account(self, new_nickname, new_login, new_password):
+    def update_account(self, new_nickname, new_login, new_password): #доделать левл и т.д.
         if self.current_account_id != None:
             account_db_storage.update_account(account_id = self.current_account_id, nickname = new_nickname, login = new_login, password = new_password)
             return 'Данные обновлены.'
