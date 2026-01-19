@@ -6,14 +6,18 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from repositories.account_db_repository import AccountsDbRepository
 from repositories.person_db_repository import PersonsDbRepository
+from repositories.settings_db_repository import SettingsDbRepository
+from repositories.card_db_repository import CardDbRepository
 from models.account import Account
 from models.person import Person
 
+settings_db_storage = SettingsDbRepository()
+cards_db_storage = CardDbRepository()
 person_db_storage = PersonsDbRepository()
 account_db_storage = AccountsDbRepository()
 
 class AccountService:
-    def __init__(self):
+    def init(self):
         self.current_account_id = None
         
     def create_account(self, user_data, person_id):
@@ -24,7 +28,7 @@ class AccountService:
             cards = []
             for card_id in range(1, 6):
                 cards.append(cards_db_storage.get_card_by_id(card_id)[0])
-            settings_db_storage.add_cards_id(account_id,
+            settings_db_storage.add_cards_id(self.current_account_id,
                                              cards[0],
                                              cards[1],
                                              cards[2],
@@ -70,17 +74,20 @@ class AccountService:
         else:
             return "Вы не вошли в аккаунт!"
 
+    def import_deck_of_cards(self):
+        return settings_db_storage.get_settings_by_id(self.current_account_id)
+
     def get_all_accounts(self):
         result = account_db_storage.get_all_accounts()
         if result and len(result) > 0:
-            '''accounts = [Account(account_id = data[0],
+            accounts = [Account(account_id = data[0],
                 person_id = data[1],
                 nickname = data[2],
                 login = data[3],
                 password = data[4] if data[4] else '-',
                 cash = data[5] if data[5] else '-',
-                level = data[6] if data[6] else '-') for data in result]'''
-            return result
+                level = data[6] if data[6] else '-') for data in result]
+            return accounts
         return ['Нет данных']
                 
     def get_account_by_login(self, login):

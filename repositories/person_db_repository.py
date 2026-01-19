@@ -2,12 +2,14 @@ import sqlite3
 
 class PersonsDbRepository:
     def __init__(self, db_path='game.db'):
-        self.conn = sqlite3.connect(db_path)
-        self.cursor = self.conn.cursor()
+        self.db_path = db_path
         self.__create_table()
         
     def __create_table(self):
-            self.cursor.execute('''
+        conn = sqlite3.connect(self.db_path, timeout=30, check_same_thread=False)
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
                 CREATE TABLE IF NOT EXISTS persons (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     first_name TEXT,
@@ -18,52 +20,72 @@ class PersonsDbRepository:
                     account_id INTEGER
                 )
             ''')
-            self.conn.commit()
+            conn.commit()
+        finally:
+            conn.close()
             
     def add_person(self, person):
-        self.cursor.execute('''
-            INSERT INTO persons (first_name, surname, last_name, email, phone_number)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (person.first_name, person.surname, person.last_name, person.email, person.phone_number))
-        self.conn.commit()
-        return self.cursor.lastrowid
+        conn = sqlite3.connect(self.db_path, timeout=30, check_same_thread=False)
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO persons (first_name, surname, last_name, email, phone_number)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (person.first_name, person.surname, person.last_name, person.email, person.phone_number))
+            conn.commit()
+            return cursor.lastrowid
+        finally:
+            conn.close()
     
     def get_person_by_id(self, person_id):
-        self.cursor.execute('''SELECT * From persons WHERE id = ?''', (person_id, ))
-        person = self.cursor.fetchone()
-        self.conn.commit()
-        return person
+        conn = sqlite3.connect(self.db_path, timeout=30, check_same_thread=False)
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM persons WHERE id = ?', (person_id,))
+            return cursor.fetchone()
+        finally:
+            conn.close()
     
     def get_persons(self):
-        self.cursor.execute('''SELECT * From persons''')
-        persons = self.cursor.fetchall()
-        self.conn.commit()
-        return persons
+        conn = sqlite3.connect(self.db_path, timeout=30, check_same_thread=False)
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM persons')
+            return cursor.fetchall()
+        finally:
+            conn.close()
         
     def update_person(self, person_id, first_name, surname, last_name, email, phone_number, account_id=None):
-        self.cursor.execute('''
-            UPDATE persons
-            SET first_name = ?,
-                surname = ?,
-                last_name = ?,
-                email = ?,
-                phone_number = ?,
-                account_id = ?
-            WHERE id = ?
-        ''', (
-            first_name,
-            surname,
-            last_name,
-            email,
-            phone_number,
-            account_id,
-            person_id
-        ))
-        self.conn.commit()
+        conn = sqlite3.connect(self.db_path, timeout=30, check_same_thread=False)
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE persons
+                SET first_name = ?,
+                    surname = ?,
+                    last_name = ?,
+                    email = ?,
+                    phone_number = ?,
+                    account_id = ?
+                WHERE id = ?
+            ''', (
+                first_name,
+                surname,
+                last_name,
+                email,
+                phone_number,
+                account_id,
+                person_id
+            ))
+            conn.commit()
+        finally:
+            conn.close()
         
     def delete_person(self, person_id):
-        self.cursor.execute('DELETE FROM persons WHERE id = ?', (person_id, ))
-        self.conn.commit()
-    
-    def close(self):
-        self.conn.close()
+        conn = sqlite3.connect(self.db_path, timeout=30, check_same_thread=False)
+        try:
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM persons WHERE id = ?', (person_id,))
+            conn.commit()
+        finally:
+            conn.close()
