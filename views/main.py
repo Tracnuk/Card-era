@@ -9,84 +9,45 @@ from helpers.const import *
 from models.user_registration import UserRegistrationDTO
 
 game = Game()
-
-while True:
+flag_register = False
+flag_exit_menu = False
+while not flag_exit_menu:
     try:
-        status = int(input(Register_menu))
+        menu_status = int(input(Register_menu))
+        match(menu_status):
+            case 1:
+                nickname = input('Введите никнэйм: ')
+                login = input('Введите логин: ')
+                password = input('Введите пророль: ')
+                first_name = input('Введите своё имя: ')
+                data = UserRegistrationDTO(nickname, login, password, first_name)
+                query_result = game.register(data)
+                flag_register = query_result[0]
+                print(query_result[1])
+            case 2:
+                login = input('Введите логин: ')
+                password = input('Введите пророль: ')
+                print(game.login(login, password))
+            case 3:
+                print(game.delete_user())
+            case 4:
+                if 
+                flag_exit_game = False
+                while not flag_exit_game:
+                    try:
+                        status = int(input(Register_menu))
+                        match(
+            case 5:
+                print(*game.get_current_user())
+            case 6:
+                for users in game.get_all_users():
+                    for user in users:
+                        print(user)
+                        print('_' * 10)
+            case 0:
+                print('\nДо свидания!')
+                flag_exit_menu = True
+            case _:
+                print('Некорректный ввод, попробуйте ещё раз')
     except:
         print("Ошибка ввода")
-    match(status):
-        case 1:
-            nickname = input('Введите никнэйм: ')
-            login = input('Введите логин: ')
-            password = input('Введите пророль: ')
-            first_name = input('Введите своё имя: ')
-            data = UserRegistrationDTO(nickname, login, password, first_name)
-            print(game.register(data))
-        case 2:
-            login = input('Введите логин: ')
-            password = input('Введите пророль: ')
-            print(game.login(login, password))
-        case 3:
-            print(game.delete_user())
-        case 4:
-            if game.verification():
-                while True:
-                    try:
-                        n = int(input(Game_menu))
-                    except:
-                        print("Ошибка ввода")
-                    match(n):
-                        case 1:
-                            leave = False
-                            turn = random.randint(0, 1)
-                            battle = Battle()
-                            while True:
-                                if turn:
-                                    battle.giv_activ_cards(1)
-                                    print(*battle.get_battle_data())
-                                    while True:
-                                        match(int(input())):
-                                            case 1:
-                                                while (n := battle.plant_player_card(int(input()), int(input()))) != None:
-                                                    print(n)
-                                            case 2:
-                                                break
-                                            case 3:
-                                                leave = True
-                                                break
-                                        print(butle.get_battle_data())
-                                    battle.attak_cards()
-                                    turn -= 1
-                                elif leave:
-                                    break
-                                else:
-                                    
-                                    turn += 1
-                                
-                        case 2:
-                            inventory()
-                        case 3:
-                            settings()
-                        case 4:
-                            shop()
-                        case 0:
-                            input('Вы уверены, что хотите выйти?\n1 - ДА\n2 - НЕТ')
-                            if int(input()) == 1:
-                                break
-                        case _:
-                            print('Некорректный ввод, попробуйте ещё раз')
-            else:
-                print('Вы не вошли в аккаунт')
-        case 5:
-            print(*game.get_current_user())
-        case 6:
-            for users in game.get_all_users():
-                for user in users:
-                    print(user)
-                    print('_' * 10)
-        case 0:
-            print('\nДо свидания!')
-            break
-        case _:
-            print('Некорректный ввод, попробуйте ещё раз')

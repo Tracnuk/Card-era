@@ -22,10 +22,10 @@ class Game:
         person_id = person.create_person(user_data.first_name)
         account_id = account.create_account(user_data, person_id)
         if isinstance((account_id), str):
-            return account_id
+            return (False, account_id)
         else:
             person.update_person(user_data.first_name, account_id)
-        return 'Добро пожаловать'
+        return (True, 'Добро пожаловать')
 
     def login(self, login, password):
         asnwer = account.login(login, password)
@@ -56,7 +56,7 @@ class Game:
             current_account.cash += 30 * (0.2 * current_account.level)
             level += 1
         data = buttle_data()
-        return 
+        return data
     
     def get_all_users(self):
         users_persons = person.get_all_persons()
