@@ -1,18 +1,7 @@
-class Account():
-    def __init__(self, nickname, login, password, person_id, cash=0, level=0, account_id=-1):
-        self.id = account_id
-        self.nickname = nickname
-        self.person_id = person_id
-        self.login = login
-        self.password = password
-        self.cash = cash
-        self.level = level
-
-    def __str__(self):
-        return f'''person_id: {self.person_id}
-account_id: {self.id}
-никнэйм: {self.nickname}
-логин: {self.login}
-пароль: {self.password}
-количество денег: {self.cash}
-уровень: {self.level}'''
+class Player():
+    def __init__(self, hp=40, energy=2, activ_cards=[], wasted_energy=0):
+        self.hp = hp
+        self.energy = energy
+        self.activ_card = activ_cards
+        self.wasted_energy = wasted_energy
+        
