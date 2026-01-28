@@ -36,7 +36,7 @@ while not flag_exit_menu:
                 while not flag_exit_game:
                     try:
                         status = int(input(Register_menu))
-                        match(
+                        match() # <---- именно здесь
             case 5:
                 print(*game.get_current_user())
             case 6:
