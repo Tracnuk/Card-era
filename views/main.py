@@ -31,12 +31,32 @@ while not flag_exit_menu:
             case 3:
                 print(game.delete_user())
             case 4:
-                if 
-                flag_exit_game = False
-                while not flag_exit_game:
-                    try:
-                        status = int(input(Register_menu))
-                        match() # <---- именно здесь
+                if flag_register:
+                    flag_exit_game = False
+                    while not flag_exit_game:
+                        try:
+                            status = int(input(Register_menu))
+                            match(status):
+                                flag_exit_buttle = False
+                                case 1: #битва
+                                    while not flag_exit_battle:
+                                        try:
+                                            battle_status = int(input())
+                                            if battle_status == 1:
+                                                position_in_activ_cards = int(input())
+                                                position_in_field = int(input())
+                                            else:
+                                                
+                                        except:
+                                            print("Ошибка ввода")
+                                case 2: #магазин
+                                    pass
+                                case 3: #инвентарь
+                                    pass
+                                case 4:
+                                    flag_exit_game = True
+                        except:
+                            print("Ошибка ввода")
             case 5:
                 print(*game.get_current_user())
             case 6:

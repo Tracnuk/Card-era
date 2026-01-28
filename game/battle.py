@@ -24,12 +24,15 @@ class Battle:
         return result
     
     def get_battle_data(self):
-        return [self.player_area, self.enemy_area, self.player.activ_cards,
-                self.player.energy,
-                self.enemy.energy,
-                self.player.energy - self.player.wasted_energy,
-                self.enemy.energy - self.enemy.wasted_energy,
-                self.enemy.hp, self.player.hp] # переделать в словарь
+        return {'player_area': self.player_area,
+                'enemy_area': self.enemy_area,
+                'player_activ_cards': self.player.activ_cards,
+                'player_energy': self.player.energy,
+                'enemy_energy': self.enemy.energy,
+                'remaining_player_energy': self.player.energy - self.player.wasted_energy,
+                'remaining_enemy_energy': self.enemy.energy - self.enemy.wasted_energy,
+                'enemy_hp': self.enemy.hp,
+                'player_hp': self.player.hp}
 
     def attak_cards(self):
         for position in range(5):
