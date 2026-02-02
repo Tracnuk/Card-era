@@ -44,7 +44,8 @@ while not flag_exit_menu:
                                             battle_status = int(input())
                                             if battle_status == 1:
                                                 position_in_activ_cards = int(input())
-                                                position_in_field = int(input())
+                                                position_in_fiel = int(input())
+                                                
                                             else:
                                                 
                                         except:

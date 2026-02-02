@@ -5,7 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from game.battle import Battle
 
-class Arena:
+class arena:
     def __init__(self):
         self.leave = False
         battle = Battle()
