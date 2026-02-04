@@ -26,14 +26,15 @@ from helpers.const import *
 from models.user_registration import UserRegistrationDTO
 
 # ================== НАСТРОЙКИ ==================
-TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA"  # лучше вынести в .env
+# ВНИМАНИЕ: Сбрось этот токен у @BotFather, он засвечен!
+TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA" 
 game = Game()
 
 bot = Bot(token=TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
-# ================== FSM ==================
+# ================== FSM (Состояния) ==================
 class RegisterStates(StatesGroup):
     nickname = State()
     login = State()
@@ -47,11 +48,12 @@ class LoginStates(StatesGroup):
 # ================== ВСПОМОГАТЕЛЬНОЕ ==================
 def process_game_result(result):
     if result is None:
-        return "❌ Произошла ошибка (None)"
+        return "❌ Произошла ошибка: Данные не получены"
+    
+    # Если результат - кортеж (например, при удалении), объединяем все строки
     if isinstance(result, tuple):
-        if len(result) >= 2:
-            return str(result[1])
-        return str(result)
+        return "\n".join(map(str, result))
+    
     return str(result)
 
 # ================== КЛАВИАТУРЫ ==================
@@ -61,8 +63,8 @@ def get_register_menu():
         [InlineKeyboardButton(text="🔐 Вход", callback_data="login")],
         [InlineKeyboardButton(text="❌ Удалить аккаунт", callback_data="delete_user")],
         [InlineKeyboardButton(text="🎮 Играть", callback_data="play")],
-        [InlineKeyboardButton(text="ℹ️ Текущий пользователь", callback_data="current_user")],
-        [InlineKeyboardButton(text="👥 Все пользователи", callback_data="all_users")]
+        [InlineKeyboardButton(text="ℹ️ Мой профиль", callback_data="current_user")],
+        [InlineKeyboardButton(text="👥 Все игроки", callback_data="all_users")]
     ])
 
 def get_game_menu():
@@ -82,50 +84,66 @@ async def cmd_start(message: types.Message):
 # ================== РЕГИСТРАЦИЯ ==================
 @dp.callback_query(F.data == "register")
 async def register_user(callback: types.CallbackQuery, state: FSMContext):
-    await callback.message.answer("Введите никнейм:")
+    await callback.message.answer("Шаг 1/4: Введите никнейм:")
     await state.set_state(RegisterStates.nickname)
 
 @dp.message(RegisterStates.nickname)
 async def get_nickname(message: types.Message, state: FSMContext):
     await state.update_data(nickname=message.text)
-    await message.answer("Введите логин:")
+    await message.answer("Шаг 2/4: Введите логин для входа:")
     await state.set_state(RegisterStates.login)
 
 @dp.message(RegisterStates.login)
 async def get_login(message: types.Message, state: FSMContext):
     await state.update_data(login=message.text)
-    await message.answer("Введите пароль:")
+    await message.answer("Шаг 3/4: Введите пароль:")
     await state.set_state(RegisterStates.password)
 
 @dp.message(RegisterStates.password)
 async def get_password(message: types.Message, state: FSMContext):
     await state.update_data(password=message.text)
-    await message.answer("Введите имя:")
+    await message.answer("Шаг 4/4: Введите имя вашего персонажа:")
     await state.set_state(RegisterStates.name)
 
 @dp.message(RegisterStates.name)
 async def get_name(message: types.Message, state: FSMContext):
-    logger.info(f"Имя получено: {message.text}")
+    # 1. Получаем данные
     data = await state.get_data()
+    
+    # 2. ЖЕСТКАЯ ПРОВЕРКА: Если данных нет, не идем дальше
+    if not data:
+        await message.answer("❌ Ошибка: Сессия регистрации потеряна (возможно, бот был перезагружен). Начните заново с команды /start")
+        await state.clear()
+        return
+
+    # 3. Безопасно достаем поля через .get()
+    nick = data.get("nickname")
+    log = data.get("login")
+    pwd = data.get("password")
+    fname = message.text
+
+    # Если вдруг какое-то поле пустое
+    if not all([nick, log, pwd]):
+        await message.answer("❌ Ошибка: Некоторые данные регистрации отсутствуют. Начните заново.")
+        await state.clear()
+        return
 
     try:
         user_data = UserRegistrationDTO(
-            nickname=data["nickname"],
-            login=data["login"],
-            password=data["password"],
-            first_name=message.text
+            nickname=nick,
+            login=log,
+            password=pwd,
+            first_name=fname
         )
 
-        result = game.register(user_data)
-        await message.answer(
-            process_game_result(result),
-            reply_markup=get_register_menu()
-        )
+        # Вызываем регистрацию и получаем результат (который теперь кортеж)
+        success, result_msg = game.register(user_data)
+        
+        await message.answer(str(result_msg), reply_markup=get_register_menu())
 
     except Exception as e:
-        logger.exception("Ошибка регистрации")
-        await message.answer(f"❌ Ошибка регистрации: {e}")
-
+        logger.exception("Критическая ошибка в хендлере регистрации")
+        await message.answer(f"❌ Системная ошибка: {e}")
     finally:
         await state.clear()
 
@@ -144,7 +162,12 @@ async def login_login(message: types.Message, state: FSMContext):
 @dp.message(LoginStates.password)
 async def login_password(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    result = game.login(data["login"], message.text)
+    if not data:
+        await message.answer("❌ Ошибка авторизации. Попробуйте снова.")
+        await state.clear()
+        return
+        
+    result = game.login(data.get("login"), message.text)
     await message.answer(process_game_result(result), reply_markup=get_register_menu())
     await state.clear()
 
@@ -152,19 +175,19 @@ async def login_password(message: types.Message, state: FSMContext):
 @dp.callback_query(F.data == "play")
 async def play(callback: types.CallbackQuery):
     if game.verification():
-        await callback.message.answer("🎮 Игра началась!", reply_markup=get_game_menu())
+        await callback.message.answer("🎮 Добро пожаловать в игровой мир!", reply_markup=get_game_menu())
     else:
-        await callback.message.answer("❌ Сначала войдите в аккаунт")
+        await callback.answer("❌ Сначала войдите в аккаунт!", show_alert=True)
 
 @dp.callback_query(F.data == "arena")
 async def arena_cb(callback: types.CallbackQuery):
     arena()
-    await callback.message.answer("⚔️ Арена")
+    await callback.message.answer("⚔️ Вы на арене!")
 
 @dp.callback_query(F.data == "inventory")
 async def inventory_cb(callback: types.CallbackQuery):
     inventory()
-    await callback.message.answer("🎒 Инвентарь")
+    await callback.message.answer("🎒 Открыт инвентарь")
 
 @dp.callback_query(F.data == "settings")
 async def settings_cb(callback: types.CallbackQuery):
@@ -178,12 +201,13 @@ async def shop_cb(callback: types.CallbackQuery):
 
 @dp.callback_query(F.data == "exit")
 async def exit_cb(callback: types.CallbackQuery):
-    await callback.message.answer("🚪 Выход", reply_markup=get_register_menu())
+    await callback.message.answer("🚪 Вы вышли в главное меню", reply_markup=get_register_menu())
 
 # ================== ПОЛЬЗОВАТЕЛИ ==================
 @dp.callback_query(F.data == "current_user")
 async def current_user(callback: types.CallbackQuery):
-    await callback.message.answer(str(game.get_current_user()))
+    user = game.get_current_user()
+    await callback.message.answer(f"👤 Информация о вас:\n{user}")
 
 @dp.callback_query(F.data == "all_users")
 async def all_users(callback: types.CallbackQuery):
@@ -202,7 +226,12 @@ async def delete_user(callback: types.CallbackQuery):
 # ================== ЗАПУСК ==================
 async def main():
     logger.info("Бот запущен")
+    # Удаляем вебхуки и запускаем поллинг
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Бот остановлен")

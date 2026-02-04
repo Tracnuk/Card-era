@@ -19,10 +19,16 @@ class PersonService:
         person = Person(first_name)
         self.current_person_id = person_db_storage.add_person(person)
         return self.current_person_id
+
+    # ВАЖНО: Добавили этот метод для регистрации
+    def update_account_id(self, person_id, account_id):
+        """Связывает персонажа с созданным аккаунтом"""
+        return person_db_storage.update_account_id(person_id, account_id)
         
     def delete_person(self):
-        if self.current_person_id != None:
+        if self.current_person_id is not None:
             person_db_storage.delete_person(self.current_person_id)
+            self.current_person_id = None # Очищаем ID после удаления
             return 'Пользователь был удалён.'
         else:
             return 'Вы не вошли в аккаунт!'
@@ -31,7 +37,7 @@ class PersonService:
         self.current_person_id = person_id
 
     def update_person(self, new_first_name, account_id, new_surname='', new_last_name='', new_email='', new_phone_number=''):
-        if self.current_person_id != None:
+        if self.current_person_id is not None:
             person_id = self.current_person_id
             person_db_storage.update_person(person_id, new_first_name, new_surname, new_last_name, new_email, new_phone_number, account_id)
             return 'Данные обновлены.'
@@ -39,9 +45,9 @@ class PersonService:
             return 'Вы не вошли в аккаунт!'
     
     def get_person_by_id(self, person_id=None):
-        if person_id != None:
+        if person_id is not None:
             return person_db_storage.get_person_by_id(person_id)
-        elif self.current_person_id != None:
+        elif self.current_person_id is not None:
             return person_db_storage.get_person_by_id(self.current_person_id)
         else:
             return "Вы не вошли в аккаунт!"
@@ -49,12 +55,12 @@ class PersonService:
     def get_all_persons(self):
         result = person_db_storage.get_persons()
         if result and len(result) > 0:
-            person = [Person(person_id = data[0],
+            persons = [Person(person_id = data[0],
             first_name = data[1] if data[1] else '-',
             surname = data[2] if data[2] else '-',
             last_name = data[3] if data[3] else '-',
             email = data[4] if data[4] else '-',
             phone_number = data[5],
             account_id = data[6]) for data in result]
-            return person
+            return persons
         return ['Нет данных']

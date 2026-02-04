@@ -24,20 +24,35 @@ class AccountService:
         try:
             account = Account(user_data.nickname, user_data.login, user_data.password, person_id)
             account_id = account_db_storage.add_account(account)
+            
+            if not account_id:
+                return "Ошибка: БД не вернула ID аккаунта"
+                
             self.current_account_id = account_id
+            
+            # Собираем стартовую колоду
             cards = []
             for card_id in range(1, 6):
-                cards.append(cards_db_storage.get_card_by_id(card_id)[0])
-            settings_db_storage.add_cards_id(self.current_account_id,
-                                             cards[0],
-                                             cards[1],
-                                             cards[2],
-                                             cards[3],
-                                             cards[4])
+                card_data = cards_db_storage.get_card_by_id(card_id)
+                # Если карта найдена — берем её ID (индекс 0), иначе ставим заглушку 0
+                if card_data and len(card_data) > 0:
+                    cards.append(card_data[0])
+                else:
+                    cards.append(0) 
+
+            # Записываем настройки (теперь точно не упадет из-за None)
+            settings_db_storage.add_cards_id(
+                self.current_account_id,
+                cards[0], cards[1], cards[2], cards[3], cards[4]
+            )
+            
             return account_id
+
         except sqlite3.IntegrityError:
             return 'Пользователь с таким логином уже существует!'
         except Exception as e:
+            # Выводим конкретную ошибку в консоль для отладки
+            print(f"DEBUG ERROR: {e}") 
             return f'Ошибка создания аккаунта: {str(e)}'
         
     def delete_account(self):
