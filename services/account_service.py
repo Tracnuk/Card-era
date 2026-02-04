@@ -6,8 +6,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from repositories.account_db_repository import AccountsDbRepository
 from repositories.person_db_repository import PersonsDbRepository
-from repositories.settings_db_repository import SettingsDbRepository
-from repositories.card_db_repository import CardDbRepository
 from models.account import Account
 from models.person import Person
 
@@ -25,15 +23,7 @@ class AccountService:
             account = Account(user_data.nickname, user_data.login, user_data.password, person_id)
             account_id = account_db_storage.add_account(account)
             self.current_account_id = account_id
-            cards = []
-            for card_id in range(1, 6):
-                cards.append(cards_db_storage.get_card_by_id(card_id)[0])
-            settings_db_storage.add_cards_id(self.current_account_id,
-                                             cards[0],
-                                             cards[1],
-                                             cards[2],
-                                             cards[3],
-                                             cards[4])
+            person_db_storage.update_person(user_data.first_name, account_id)
             return account_id
         except sqlite3.IntegrityError:
             return 'Пользователь с таким логином уже существует!'

@@ -6,7 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from services.account_service import AccountService
 from services.person_service import PersonService
 from repositories.settings_db_repository import SettingsDbRepository
-from repositories.card_db_repository import CardDbRepository
+from services.cards_service import CardService
 
 settings_db_storage = SettingsDbRepository()
 cards_db_storage = CardDbRepository()
@@ -22,8 +22,8 @@ class Game:
         account_id = account.create_account(user_data, person_id)
         if isinstance((account_id), str):
             return (False, account_id)
-        else:
-            person.update_person(user_data.first_name, account_id)
+        else: #доделать
+            
         return (True, 'Добро пожаловать')
 
     def login(self, login, password):
