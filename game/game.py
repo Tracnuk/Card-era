@@ -1,6 +1,8 @@
 import sys
 import os
 
+from services.owner_service import OwnerService
+
 # Добавляем путь, чтобы импорты работали
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -8,6 +10,7 @@ from services.account_service import AccountService
 from services.person_service import PersonService
 from repositories.settings_db_repository import SettingsDbRepository
 from repositories.card_db_repository import CardDbRepository
+from services.owner_service import OwnerService
 
 class Game:
     def __init__(self):
@@ -16,6 +19,7 @@ class Game:
         self.account_service = AccountService()
         self.settings_db_storage = SettingsDbRepository()
         self.cards_db_storage = CardDbRepository()
+        self.owner_service = OwnerService()
 
     # ================== РЕГИСТРАЦИЯ ==================
     def register(self, user_data):
@@ -81,3 +85,11 @@ class Game:
     # ================== ПРОВЕРКА АВТОРИЗАЦИИ ==================
     def verification(self):
         return self.account_service.verification()
+    
+    def get_inventory_info(self):
+        """Метод для получения текстового состава инвентаря"""
+        if self.account_service.verification():
+            acc_id = self.account_service.current_account_id
+            # Теперь self.owner_service существует и метод сработает
+            return self.owner_service.get_inventory_text(acc_id)
+        return "❌ Ошибка: пользователь не авторизован."

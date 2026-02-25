@@ -26,7 +26,6 @@ from helpers.const import *
 from models.user_registration import UserRegistrationDTO
 
 # ================== НАСТРОЙКИ ==================
-# ВНИМАНИЕ: Сбрось этот токен у @BotFather, он засвечен!
 TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA" 
 game = Game()
 
@@ -57,29 +56,58 @@ def process_game_result(result):
     return str(result)
 
 # ================== КЛАВИАТУРЫ ==================
-def get_register_menu():
+
+# Меню для тех, кто НЕ вошел
+def get_auth_menu():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='📝 Регистрация', callback_data="register")],
-        [InlineKeyboardButton(text="🔐 Вход", callback_data="login")],
-        [InlineKeyboardButton(text="❌ Удалить аккаунт", callback_data="delete_user")],
-        [InlineKeyboardButton(text="🎮 Играть", callback_data="play")],
-        [InlineKeyboardButton(text="ℹ️ Мой профиль", callback_data="current_user")],
-        [InlineKeyboardButton(text="👥 Все игроки", callback_data="all_users")]
+        [InlineKeyboardButton(text="🔐 Вход", callback_data="login")]
     ])
 
+# Меню для тех, кто ВОШЕЛ (изначальный выбор: играть или профиль)
+def get_start_menu():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🎮 Играть", callback_data="play")],
+        [InlineKeyboardButton(text="ℹ️ Мой профиль", callback_data="current_user")],
+        [InlineKeyboardButton(text="❌ Удалить аккаунт", callback_data="delete_user")]
+    ])
+
+# Игровое меню (когда нажали "Играть")
 def get_game_menu():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⚔️ Арена", callback_data="arena")],
         [InlineKeyboardButton(text="🎒 Инвентарь", callback_data="inventory")],
-        [InlineKeyboardButton(text="⚙️ Настройки", callback_data="settings")],
         [InlineKeyboardButton(text="🛒 Магазин", callback_data="shop")],
+        [InlineKeyboardButton(text="⚙️ Настройки", callback_data="settings")],
         [InlineKeyboardButton(text="🚪 Выйти", callback_data="exit")]
     ])
 
 # ================== START ==================
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    await message.answer("👋 Добро пожаловать в игру!", reply_markup=get_register_menu())
+    if game.verification():
+        await message.answer("👋 С возвращением! Выберите действие:", reply_markup=get_start_menu())
+    else:
+        await message.answer("👋 Добро пожаловать! Пожалуйста, войдите или зарегистрируйтесь:", reply_markup=get_auth_menu())
+
+# ================== ВХОД (после успешного логина) ==================
+@dp.message(LoginStates.password)
+async def login_password(message: types.Message, state: FSMContext):
+    data = await state.get_data()
+    if not data:
+        await message.answer("❌ Ошибка авторизации. Попробуйте снова.")
+        await state.clear()
+        return
+        
+    result = game.login(data.get("login"), message.text)
+    
+    # Если вход успешен, показываем игровое меню, если нет - меню входа
+    if game.verification():
+        await message.answer(f"✅ Успешный вход!\n{process_game_result(result)}", reply_markup=get_start_menu())
+    else:
+        await message.answer(f"❌ {process_game_result(result)}", reply_markup=get_auth_menu())
+    
+    await state.clear()
 
 # ================== РЕГИСТРАЦИЯ ==================
 @dp.callback_query(F.data == "register")
@@ -184,10 +212,44 @@ async def arena_cb(callback: types.CallbackQuery):
     arena()
     await callback.message.answer("⚔️ Вы на арене!")
 
+# ================== ИНВЕНТАРЬ ==================
 @dp.callback_query(F.data == "inventory")
 async def inventory_cb(callback: types.CallbackQuery):
-    inventory()
-    await callback.message.answer("🎒 Открыт инвентарь")
+    try:
+        # Сразу отвечаем на колбэк, чтобы убрать "часики"
+        await callback.answer() 
+        
+        # 1. Проверка авторизации
+        if not game.verification():
+            await callback.message.answer("❌ Сначала войдите в аккаунт!")
+            return # Выходим из функции, чтобы код ниже не выполнялся
+
+        # 2. Получаем текст инвентаря
+        # Убедись, что внутри game.get_inventory_info() используется логика с HTML и <pre>
+        inventory_text = game.get_inventory_info()
+        
+        # 3. Проверка на пустой результат
+        if not inventory_text:
+            inventory_text = "📦 <b>Инвентарь пуст или произошла ошибка.</b>"
+
+        # 4. Создаем клавиатуру
+        inventory_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="⚔️ Арена", callback_data="arena")],
+            [InlineKeyboardButton(text="🚪 Меню", callback_data="play")]
+        ])
+
+        # 5. Отправляем сообщение
+        # ВАЖНО: parse_mode="HTML" для работы тегов <b> и <pre>
+        await callback.message.answer(
+            text=inventory_text,
+            reply_markup=inventory_kb,
+            parse_mode="HTML" 
+        )
+        
+    except Exception as e:
+        print(f"КРИТИЧЕСКАЯ ОШИБКА: {e}")
+        # Используем f-строку правильно, чтобы не вызвать новую ошибку при выводе ошибки
+        await callback.message.answer(f"⚠️ Произошла системная ошибка. Проверьте консоль.")
 
 @dp.callback_query(F.data == "settings")
 async def settings_cb(callback: types.CallbackQuery):

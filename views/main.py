@@ -31,12 +31,12 @@ while not flag_exit_menu:
             case 3:
                 print(game.delete_user())
             case 4:
-                if 
+#                if 
                 flag_exit_game = False
                 while not flag_exit_game:
-                    try:
+#                    try:
                         status = int(input(Register_menu))
-                        match(
+#                        match(
             case 5:
                 print(*game.get_current_user())
             case 6:
