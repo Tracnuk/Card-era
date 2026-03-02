@@ -1,95 +1,79 @@
-import sys
-import os
-
 from services.owner_service import OwnerService
-
-# Добавляем путь, чтобы импорты работали
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-from services.account_service import AccountService
-from services.person_service import PersonService
-from repositories.settings_db_repository import SettingsDbRepository
-from repositories.card_db_repository import CardDbRepository
-from services.owner_service import OwnerService
+# Импортируем созданный выше объект
+from repositories.user_repository import user_storage
 
 class Game:
     def __init__(self):
-        # Инициализируем сервисы внутри класса
-        self.person_service = PersonService()
-        self.account_service = AccountService()
-        self.settings_db_storage = SettingsDbRepository()
-        self.cards_db_storage = CardDbRepository()
+        self.current_user = None
         self.owner_service = OwnerService()
 
-    # ================== РЕГИСТРАЦИЯ ==================
-    def register(self, user_data):
-        try:
-            # 1. создаём персонажа
-            person_id = self.person_service.create_person(user_data.first_name)
-            if not person_id:
-                return False, "Ошибка создания персонажа"
+    def register(self, user_dto):
+        success, message = user_storage.create_user(user_dto)
+        if success:
+            # 1. Сначала логинимся, чтобы получить ID нового игрока
+            user = user_storage.auth_user(user_dto.login, user_dto.password)
+            if user:
+                # 2. Выдаем карту (ID карты 1 — твой воробей)
+                from repositories.card_ownership import card_ownership_storage
+                card_ownership_storage.add_card_and_account(2, user[0])  # user[0] — это ID аккаунта
+                return True, "✅ Регистрация успешна! Воробей уже в инвентаре."
+        return success, message
 
-            # 2. создаём аккаунт
-            account_id = self.account_service.create_account(user_data, person_id)
-            if isinstance(account_id, str):
-                return False, account_id
-
-            # 3. связываем персонажа с аккаунтом
-            self.person_service.update_account_id(person_id, account_id)
-
-            return True, "✅ Регистрация прошла успешно"
-        except Exception as e:
-            return False, f"❌ Ошибка БД: {e}"
-
-    # ================== ЛОГИН ==================
     def login(self, login, password):
-        login_result = self.account_service.login(login, password)
-        if isinstance(login_result, str):
-            return False, login_result
+        user = user_storage.auth_user(login, password)
+        if user:
+            self.current_user = user
+            return True
+        return False
 
-        account_data = self.account_service.get_account_by_login(login)
-        if not account_data:
-            return False, "Аккаунт не найден"
+    def verification(self):
+        return self.current_user is not None
 
-        person_id = account_data.person_id
-        self.person_service.login(person_id)
+    def login(self, login, password):
+        from repositories.user_repository import user_storage
+        from repositories.card_ownership import card_ownership_storage
+        
+        user = user_storage.auth_user(login, password)
+        if user:
+            self.current_user = user
+            uid = user[0]
+            
+            # ПРОВЕРКА: Если у игрока вообще нет карт, выдаем стартовую карту №1
+            user_cards = card_ownership_storage.get_cards_in_account(uid)
+            if not user_cards:
+                # Дарим карту №1 (Воробей) сразу в базу данных
+                card_ownership_storage.add_card_and_account(1, uid)
+            
+            return True
+        return False
 
-        return True, "✅ Успешный вход"
-
-    # ================== ТЕКУЩИЙ ПОЛЬЗОВАТЕЛЬ ==================
     def get_current_user(self):
-        account = self.account_service.get_account_by_id()
-        person = self.person_service.get_person_by_id()
-
-        if not account and not person:
-            return "❌ Пользователь не найден"
-
-        return f"Аккаунт: {account}\nПерсонаж: {person}"
-
-    # ================== ВСЕ ПОЛЬЗОВАТЕЛИ ==================
-    def get_all_users(self):
-        persons = self.person_service.get_all_persons()
-        accounts = self.account_service.get_all_accounts()
-        return persons, accounts
-
-    # ================== УДАЛЕНИЕ ==================
-    def delete_user(self):
-        person_result = self.person_service.delete_person()
-        account_result = self.account_service.delete_account()
-
+        if not self.current_user:
+            return "❌ Вы не вошли в аккаунт!"
+        u = self.current_user
         return (
-            "🗑 Персонаж удалён" if person_result else "❌ Персонаж не удалён",
-            "🗑 Аккаунт удалён" if account_result else "❌ Аккаунт не удалён"
+            f"👤 <b>Профиль игрока</b>\n"
+            f"Ник: <b>{u[1]}</b>\n"
+            f"Имя героя: <b>{u[4]}</b>\n"
+            f"💰 Золото: <code>{u[5]}</code>\n"
+            f"🏆 Уровень: <code>{u[6]}</code>"
         )
 
-    # ================== ПРОВЕРКА АВТОРИЗАЦИИ ==================
-    def verification(self):
-        return self.account_service.verification()
-    
     def get_inventory_info(self):
-        """Метод для получения текстового состава инвентаря"""
-        if self.account_service.verification():
-            acc_id = self.account_service.current_account_id
-            # Теперь self.owner_service существует и метод сработает
-            return self.owner_service.get_inventory_text(acc_id)
-        return "❌ Ошибка: пользователь не авторизован."
+        if not self.verification():
+            return "❌ Сначала войдите в аккаунт!"
+        
+        account_id = self.current_user[0]
+        
+        # Проверяем, есть ли карты
+        cards = self.owner_service.get_inventory_text(account_id)
+        
+        # Если карт нет (текст содержит "пуст"), выдаем стартовную карту
+        if "пуст" in cards.lower():
+            from repositories.card_ownership import card_ownership_storage
+            # Выдаем карту №1 (Воробей) текущему игроку
+            card_ownership_storage.add_card_and_account(1, account_id)
+            # Запрашиваем текст инвентаря снова
+            cards = self.owner_service.get_inventory_text(account_id)
+            
+        return cards

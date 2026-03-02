@@ -40,3 +40,4 @@ class CardOwnership:
             conn.execute('DELETE FROM CardOwnerships WHERE id_account = ?', (id_account,))
             conn.commit()
             return f'Все карты аккаунта {id_account} удалены!'
+card_ownership_storage = CardOwnership()
