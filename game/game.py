@@ -72,8 +72,13 @@ class Game:
         if "пуст" in cards.lower():
             from repositories.card_ownership import card_ownership_storage
             # Выдаем карту №1 (Воробей) текущему игроку
-            card_ownership_storage.add_card_and_account(1, account_id)
+            card_ownership_storage.add_card_and_account(4, account_id)
             # Запрашиваем текст инвентаря снова
             cards = self.owner_service.get_inventory_text(account_id)
             
         return cards
+    
+    def logout(self):
+        """Сбрасывает сессию текущего пользователя"""
+        self.current_user = None
+        return True

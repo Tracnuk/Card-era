@@ -14,10 +14,12 @@ from aiogram.fsm.storage.memory import MemoryStorage
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
 
+# Добавляем корневую папку в путь, чтобы импорты из других папок работали
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from game.game import Game
 from models.user_registration import UserRegistrationDTO
+from services.shop_service import shop_service  # Импорт нового сервиса магазина
 
 TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA" 
 game = Game()
@@ -126,13 +128,48 @@ async def login_finish(message: types.Message, state: FSMContext):
         await message.answer("❌ Неверный логин или пароль.", reply_markup=get_auth_menu())
     await state.clear()
 
-# --- ГЕЙМПЛЕЙ ---
+# --- ГЕЙМПЛЕЙ И МАГАЗИН ---
 @dp.callback_query(F.data == "play")
 async def play_menu(callback: types.CallbackQuery):
     if game.verification():
         await callback.message.edit_text("🎯 Выберите раздел:", reply_markup=get_game_menu())
     else:
         await callback.answer("❌ Вы не авторизованы!", show_alert=True)
+
+@dp.callback_query(F.data == "shop")
+async def shop_cb(callback: types.CallbackQuery):
+    if not game.verification():
+        await callback.answer("❌ Сначала войдите!")
+        return
+    
+    # Получаем текст товаров из сервиса
+    text = shop_service.get_shop_menu_text()
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="play")]
+    ])
+    await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
+
+@dp.message(F.text.startswith("/buy_"))
+async def buy_handler(message: types.Message):
+    if not game.verification():
+        await message.answer("❌ Сначала войдите в аккаунт!")
+        return
+
+    try:
+        # Извлекаем ID карты из команды /buy_1 -> 1
+        card_id = int(message.text.split("_")[1])
+        user_id = game.current_user[0]
+        
+        result = shop_service.process_purchase(user_id, card_id)
+        
+        # Обновляем данные текущего пользователя в объекте game, 
+        # чтобы золото обновилось в профиле мгновенно
+        game.login(game.current_user[2], game.current_user[3]) 
+        
+        await message.answer(result, parse_mode="HTML")
+    except Exception as e:
+        logger.error(f"Ошибка при покупке: {e}")
+        await message.answer("❌ Используйте формат: /buy_ID (например /buy_1)")
 
 @dp.callback_query(F.data == "inventory")
 async def inventory_cb(callback: types.CallbackQuery):
