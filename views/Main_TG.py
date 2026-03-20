@@ -14,16 +14,16 @@ from aiogram.fsm.storage.memory import MemoryStorage
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
 
-# Добавляем корневую папку в путь, чтобы импорты из других папок работали
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from game.game import Game
 from models.user_registration import UserRegistrationDTO
-from services.shop_service import shop_service  # Импорт нового сервиса магазина
+from services.shop_service import shop_service
 
-TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA" 
+TOKEN = "8329664891:AAFuF4HaqWaAvzeFZJCNTped-eqWuwjO9pA"
+
 game = Game()
-bot = Bot(token=TOKEN)
+bot = None
 dp = Dispatcher(storage=MemoryStorage())
 
 # ================== СОСТОЯНИЯ (FSM) ==================
@@ -67,6 +67,22 @@ async def cmd_start(message: types.Message):
         await message.answer("👋 С возвращением!", reply_markup=get_start_menu())
     else:
         await message.answer("👋 Добро пожаловать! Войдите или зарегистрируйтесь:", reply_markup=get_auth_menu())
+
+# --- СБРОС ИНВЕНТАРЯ (временная команда) ---
+@dp.message(F.text == "/reset_inventory")
+async def reset_inventory(message: types.Message):
+    if not game.verification():
+        await message.answer("❌ Сначала войдите!")
+        return
+
+    from repositories.card_ownership import card_ownership_storage
+    account_id = game.current_user[0]
+
+    card_ownership_storage.delete_all_user_cards(account_id)
+    for _ in range(5):
+        card_ownership_storage.add_card_and_account(5, account_id)
+
+    await message.answer("✅ Инвентарь сброшен! Теперь только воробей.")
 
 # --- РЕГИСТРАЦИЯ ---
 @dp.callback_query(F.data == "register")
@@ -141,8 +157,6 @@ async def shop_cb(callback: types.CallbackQuery):
     if not game.verification():
         await callback.answer("❌ Сначала войдите!")
         return
-    
-    # Получаем текст товаров из сервиса
     text = shop_service.get_shop_menu_text()
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🔙 Назад", callback_data="play")]
@@ -154,18 +168,11 @@ async def buy_handler(message: types.Message):
     if not game.verification():
         await message.answer("❌ Сначала войдите в аккаунт!")
         return
-
     try:
-        # Извлекаем ID карты из команды /buy_1 -> 1
         card_id = int(message.text.split("_")[1])
         user_id = game.current_user[0]
-        
         result = shop_service.process_purchase(user_id, card_id)
-        
-        # Обновляем данные текущего пользователя в объекте game, 
-        # чтобы золото обновилось в профиле мгновенно
-        game.login(game.current_user[2], game.current_user[3]) 
-        
+        game.login(game.current_user[2], game.current_user[3])
         await message.answer(result, parse_mode="HTML")
     except Exception as e:
         logger.error(f"Ошибка при покупке: {e}")
@@ -193,8 +200,17 @@ async def back_main(callback: types.CallbackQuery):
 
 # --- ЗАПУСК ---
 async def main():
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    global bot
+    from aiogram.client.session.aiohttp import AiohttpSession
+
+    proxy_session = AiohttpSession(proxy="socks5://127.0.0.1:9150")
+    bot = Bot(token=TOKEN, session=proxy_session)
+
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+        await dp.start_polling(bot)
+    finally:
+        await proxy_session.close()
 
 if __name__ == "__main__":
     try:
