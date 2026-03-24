@@ -10,12 +10,12 @@ class ShopRepository:
     def _get_conn(self):
         return sqlite3.connect(self.db_path, timeout=20)
 
-    def get_cards_for_sale(self):
+    def get_all_shop_cards(self):
         """Возвращает карты, у которых есть цена (price > 0)"""
         with self._get_conn() as conn:
             cursor = conn.cursor()
             # Предполагаем, что цена лежит в 8-й колонке (индекс 8)
-            cursor.execute('SELECT id, name, price, rarity FROM cards WHERE price > 0')
+            cursor.execute('SELECT id, ИМЯ, ЦЕНА, Редкость')
             return cursor.fetchall()
 
 shop_storage = ShopRepository()
