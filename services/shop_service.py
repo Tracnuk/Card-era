@@ -1,37 +1,23 @@
 from repositories.shop_repository import shop_storage
-from repositories.user_repository import user_storage
-from repositories.card_ownership import card_ownership_storage
-from repositories.card_db_repository import cards_db_storage
 
 class ShopService:
-    def get_shop_menu_text(self):  # <--- ПРОВЕРЬ ЭТО ИМЯ
+    def get_shop_menu_text(self):
         try:
             cards = shop_storage.get_all_shop_cards()
             if not cards:
-                return "🛒 <b>Магазин временно пуст!</b>\n(Убедитесь, что в БД у карт цена > 0)"
+                return "🛒 <b>Магазин пока пуст!</b>"
             
-            text = "🛒 <b>Магазин карт</b>\n"
-            text += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            text = "🛒 <b>МАГАЗИН ЖИВОТНЫХ</b>\n"
+            text += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
+            
             for c in cards:
-                # c[0]-id, c[1]-name, c[2]-price, c[3]-rarity
-                text += f"🔹 <b>{c[1]}</b>\nЦена: 💰 <code>{c[2]}</code> | {c[3]}\n"
-                text += f"Купить: /buy_{c[0]}\n\n"
+                text += f"<code>{c['Иконка']}</code>\n"
+                text += f"🔹 <b>{str(c['ИМЯ']).upper()}</b>\n"
+                text += f"Цена: 💰 <b>{c['ЦЕНА']}</b> | Ранг: {c['Редкость']}\n"
+                text += f"Купить: /buy_{c['rowid']}\n\n"
+            
             return text
         except Exception as e:
-            return f"❌ Ошибка магазина: {e}"
-
-    def process_purchase(self, user_id, card_id):
-        # Логика покупки (проверка золота и т.д.)
-        card = cards_db_storage.get_card_by_id(card_id)
-        if not card: return "❌ Карта не найдена."
-        
-        price = card[8] 
-        user = user_storage.get_user_by_id(user_id)
-        if user[5] < price:
-            return "❌ Недостаточно золота!"
-
-        user_storage.update_gold(user_id, user[5] - price)
-        card_ownership_storage.add_card_and_account(card_id, user_id)
-        return f"✅ Куплено: {card[3]}"
+            return f"❌ Ошибка в сервисе: {e}"
 
 shop_service = ShopService()
