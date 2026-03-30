@@ -1,45 +1,38 @@
-def get_all_shop_cards(self):
+import sqlite3
+import os
+
+class ShopRepository:
+    def __init__(self):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.db_path = os.path.join(current_dir, "cards.db")
+
+    def _get_conn(self):
+        conn = sqlite3.connect(self.db_path, timeout=20)
+        conn.row_factory = sqlite3.Row # Чтобы обращаться по именам колонок
+        return conn
+
+    def get_all_shop_cards(self):
         try:
             with self._get_conn() as conn:
                 cursor = conn.cursor()
-                cursor.execute('SELECT rowid, * FROM cards')
+                # Используем реальные имена из твоей схемы
+                cursor.execute('SELECT * FROM cards WHERE price > 0')
                 rows = cursor.fetchall()
                 
-                if not rows:
-                    print("⚠️ Таблица 'cards' пуста или не найдена.")
-                    return []
-
-                # Определяем реальные имена колонок в твоей базе
-                col_names = rows[0].keys()
-                print(f"🔎 Колонки в БД: {col_names}")
-
-                # Ищем индекс колонки, которая называется "ЦЕНА" (игнорируя пробелы и регистр)
-                price_key = next((k for k in col_names if "ЦЕНА" in k.upper().strip()), None)
-                name_key = next((k for k in col_names if "ИМЯ" in k.upper().strip()), None)
-                icon_key = next((k for k in col_names if "ИКОНКА" in k.upper().strip()), None)
-
                 shop_items = []
                 for row in rows:
-                    # Извлекаем цену по найденному ключу
-                    raw_price = row[price_key] if price_key else 0
-                    
-                    try:
-                        price_val = int(raw_price) if raw_price else 0
-                        if price_val > 0:
-                            # Превращаем row в обычный словарь для удобства сервиса
-                            item = {
-                                "rowid": row["rowid"],
-                                "ИМЯ": row[name_key] if name_key else "Без названия",
-                                "ЦЕНА": price_val,
-                                "Иконка": row[icon_key] if icon_key else "",
-                                "Редкость": row[0] # Обычно первая колонка
-                            }
-                            shop_items.append(item)
-                    except (ValueError, TypeError):
-                        continue
+                    shop_items.append({
+                        "id": row["id"],
+                        "name": row["name"],
+                        "price": row["price"],
+                        "icon": row["link_of_picture"], # Твой ASCII-арт лежит здесь
+                        "rarity": row["rarity"]
+                    })
                 
-                print(f"✅ Найдено товаров: {len(shop_items)}")
+                print(f"✅ Найдено в магазине: {len(shop_items)} карт")
                 return shop_items
         except Exception as e:
-            print(f"❌ Критическая ошибка в ShopRepository: {e}")
+            print(f"❌ Ошибка ShopRepository: {e}")
             return []
+
+shop_storage = ShopRepository()

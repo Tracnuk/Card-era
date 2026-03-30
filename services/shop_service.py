@@ -5,19 +5,20 @@ class ShopService:
         try:
             cards = shop_storage.get_all_shop_cards()
             if not cards:
-                return "🛒 <b>Магазин пока пуст!</b>"
+                return "🛒 <b>Магазин пуст!</b>\n\nПроверь, чтобы в колонке <b>price</b> стояли числа больше 0."
             
             text = "🛒 <b>МАГАЗИН ЖИВОТНЫХ</b>\n"
             text += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n"
             
             for c in cards:
-                text += f"<code>{c['Иконка']}</code>\n"
-                text += f"🔹 <b>{str(c['ИМЯ']).upper()}</b>\n"
-                text += f"Цена: 💰 <b>{c['ЦЕНА']}</b> | Ранг: {c['Редкость']}\n"
-                text += f"Купить: /buy_{c['rowid']}\n\n"
+                # ASCII-арт (icon) выводим моноширинным шрифтом
+                text += f"<code>{c['icon']}</code>\n"
+                text += f"🔹 <b>{str(c['name']).upper()}</b>\n"
+                text += f"Цена: 💰 <code>{c['price']}</code> | Ранг: {c['rarity']}\n"
+                text += f"Купить: /buy_{c['id']}\n\n"
             
             return text
         except Exception as e:
-            return f"❌ Ошибка в сервисе: {e}"
+            return f"❌ Ошибка сервиса: {e}"
 
 shop_service = ShopService()
