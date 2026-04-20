@@ -9,5 +9,5 @@ class BattleStatus():
         self.ememy_data = enemy_data
         self.enemy_area = enemy_area
         self.remaining_enemy_energy = remaining_enemy_energy
-        
+
         

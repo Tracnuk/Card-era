@@ -13,14 +13,10 @@ class Battle:
         player = Player(player_deck)
         self.battle = BattleStatus(player, player.energy, 
                                    enemy, enemy.energy)
+        self.result = [False, False]
 
-'''    def check_result_buttle(self):
-        result = (False, False) 
-        if player.hp <= 0:
-            result[0] = True
-        elif enemy.hp <= 0:
-            result[1] = True
-        return result'''
+    def get_battle_data(self):
+        return self.battle
 
     def attak_cards(self):
         for position in range(5):
@@ -31,11 +27,11 @@ class Battle:
             elif player_card == None:
                 self.battle.player_data.hp -= enemy_card.damage
                 if self.battle.player_data.hp <= 0:
-                    
+                    result[0] = True
             elif enemy_card == None:
                 self.battle.enemy_data.hp -= player_card.damage
                 if self.battle.enemy_data.hp <= 0:
-                    
+                    result[1] = True
             else:
                 player_card.hp -= enemy_card.damage
                 enemy_card.hp -= player_card.damage
@@ -43,25 +39,28 @@ class Battle:
                 del self.enemy_area[position]
             if player_card.hp <= 0:
                 del self.player_area[position]
-        return self.battle
+        return (self.battle, self.result)
 
-    def player_plant_card(self, position_in_field, position_in_activ_cards):
-        if self.player.activ_cards[position_in_activ_cards] == None:
+    def player_plant_card(self, position_in_field, position_in_activ_cards): #доделать адреса: player.area... и т.п.
+        if self.battle.player_data.activ_cards[position_in_activ_cards] == None:
             return "Выбрана несуществующяя карта"
-        elif self.player.area[position_in_field] != None:
+        elif self.buttle.player_area[position_in_field] != None:
             return "Поле занято"
-        elif self.player.activ_cards[position_in_activ_cards].energy  + self.player.wasted_energy > self.player.energy:
+        elif self.battle.remarining_player_energy - self.bulle.player_data.activ_cards[position_in_activ_cards].energy < 0:
             return "Нехвотает энергии"
-        self.player.wasted_energy += self.player.activ_cards[position_in_activ_cards].energy
-        self.player.area[position_in_field] = self.player.activ_cards.pop(position_in_activ_cards)
-        return self.battle
+        else:
+            self.battle.remarining_player_energy -= self.battle.player_data.activ_cards[position_in_activ_cards].energy
+            self.battle.player_data.area[position_in_field] = self.battle.player_data.activ_cards.pop(position_in_activ_cards)
+            return (self.battle, self.result)
 
     def enemy_plant_card(self, position_in_field, position_in_activ_cards):
-        self.enemy.wasted_energy += self.enemy.activ_cards[position_in_activ_cards].energy
-        self.enemy.area[position_in_field] = self.enemy.activ_cards.pop(position_in_activ_cards)
+        self.battle.remaining_enemy_energy -= self.enemy.activ_cards[position_in_activ_cards].energy
+        self.battle.enemy_area[position_in_field] = self.enemy.activ_cards.pop(position_in_activ_cards)
+        return (self.battle, self.result)
         
     def giv_activ_cards(self, count_player_cards, count_enemy_cards):
         for _ in range(count_player_cards):
-            self.player.activ_cards.append(self.player_deck[random.randint(0, 4)])
+            self.battle.player.activ_cards.append(self.player_deck[random.randint(0, 4)])
         for _ in range(count_enemy_cards):
-            self.enemy.activ_cards.append(self.enemy_deck[random.randint(0, 4)])
+            self.battle.enemy.activ_cards.append(self.enemy_deck[random.randint(0, 4)])
+        return (self.battle, self.result)

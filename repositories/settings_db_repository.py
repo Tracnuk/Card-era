@@ -25,12 +25,12 @@ class SettingsDbRepository:
         ''')
         self.conn.commit()
 
-    def add_cards_id(self, account_id, card1_id, card2_id, card3_id, card4_id, card5_id):
+    def add_cards_id(self, account_id, deck):
         self.cursor.execute('''
             INSERT INTO settings (account_id, card1_id, card2_id,
             card3_id, card4_id, card5_id)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (account_id, card1_id, card2_id, card3_id, card4_id, card5_id))
+        ''', (account_id, deck.card1, deck.card2, deck.card3, deck.card4, deck.card5))
         self.conn.commit()
         return self.cursor.lastrowid 
 
@@ -38,7 +38,7 @@ class SettingsDbRepository:
         self.cursor.execute('SELECT * FROM settings WHERE account_id = ?', (account_id,))
         return self.cursor.fetchone()
     
-    def update_cards(self, **kwargs):
+    def update_cards(self, deck, account_id):
         self.cursor.execute('''
             UPDATE settings
             SET card1_id = ?,
@@ -48,18 +48,18 @@ class SettingsDbRepository:
                 card5_id = ?,
             WHERE account_id = ?
         ''', (
-            kwargs['card1_id'],
-            kwargs['card2_id'],
-            kwargs['card3_id'],
-            kwargs['card4_id'],
-            kwargs['card5_id'],
-            kwargs['account_id'],
+            deck.card1,
+            deck.card2,
+            deck.card3,
+            deck.card4,
+            deck.card5,
+            account_id,
         ))
         self.conn.commit()
     
-    def delete_card(self, account_id):
+    def delete_card(self, account_id): # А нужно ли это?
         self.cursor.execute('DELETE FROM settings WHERE accont_id = ?', (account_id,))
-        self.conn.commit()
+        self.conn.commit() 
 
     def close(self):
         self.conn.close()

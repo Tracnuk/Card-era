@@ -9,20 +9,18 @@ from repositories.person_db_repository import PersonsDbRepository
 from models.account import Account
 from models.person import Person
 
-settings_db_storage = SettingsDbRepository()
-cards_db_storage = CardDbRepository()
 person_db_storage = PersonsDbRepository()
 account_db_storage = AccountsDbRepository()
 
 class AccountService:
     def __init__(self):
-        self.current_account_id = None
+        self.current_account = Account(None, None, None, None, None, None)
         
     def create_account(self, user_data, person_id):
         try:
             account = Account(user_data.nickname, user_data.login, user_data.password, person_id)
             account_id = account_db_storage.add_account(account)
-            self.current_account_id = account_id
+            self.current_account = account_db_storage.get_account_by_id(account_id)
             person_db_storage.update_person(user_data.first_name, account_id)
             return account_id
         except sqlite3.IntegrityError:
@@ -31,27 +29,32 @@ class AccountService:
             return f'Ошибка создания аккаунта: {str(e)}'
         
     def delete_account(self):
-        if self.current_account_id != None:
-            account_db_storage.delete_account(self.current_account_id)
-            self.current_account_id = None
+        if self.current_account.id != None:
+            account_db_storage.delete_account(self.current_account.id)
+            self.current_account.id = None
             return 'Аккаунт был удалён.'
         else:
             return 'Вы не вошли в аккаунт!'
 
-    def update_account(self, new_nickname, new_login, new_password): #доделать левл и т.д.
-        if self.current_account_id != None:
-            account_db_storage.update_account(account_id = self.current_account_id, nickname = new_nickname, login = new_login, password = new_password)
+    def update_account(self, new_nickname=self.current_account.nickname,
+                       new_login=self.current_account.login,
+                       new_password=self.current_account.password,
+                       cash=self.current_account.cash,
+                       level=self.current_account.level):
+        if self.current_account.id != None:
+            account_db_storage.update_accounts(Account(new_nickname, new_login,
+                                                       new_password, cash, level))
             return 'Данные обновлены.'
         else:
             return 'Вы не вошли в аккаунт!'
 
     def verification(self):
-        return self.current_account_id != None
+        return self.current_account.id != None
         
-    def login(self, login, password):
+    def authentication(self, login, password):
         if account_db_storage.verification(login, password):
             account = account_db_storage.get_account_by_login(login)
-            self.current_account_id = account[0]
+            self.current_account.id = account[0]
             return f'Добро пожаловать {account[2]}'
         else:
             return 'Неправильный логин или пароль!'
@@ -59,13 +62,10 @@ class AccountService:
     def get_account_by_id(self, account_id=None):
         if account_id != None:
             return account_db_storage.get_account_by_id(account_id)
-        elif self.current_account_id != None:
-            return account_db_storage.get_account_by_id(self.current_account_id)
+        elif self.current_account.id != None:
+            return account_db_storage.get_account_by_id(self.current_account.id)
         else:
             return "Вы не вошли в аккаунт!"
-
-    def import_deck_of_cards(self):
-        return settings_db_storage.get_settings_by_id(self.current_account_id)
 
     def get_all_accounts(self):
         result = account_db_storage.get_all_accounts()

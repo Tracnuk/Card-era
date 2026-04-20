@@ -27,7 +27,7 @@ class PersonService:
         else:
             return 'Вы не вошли в аккаунт!'
 
-    def login(self, person_id):
+    def authentication(self, person_id):
         self.current_person_id = person_id
 
     def update_person(self, new_first_name, account_id, new_surname='', new_last_name='', new_email='', new_phone_number=''):

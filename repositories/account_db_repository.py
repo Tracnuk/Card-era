@@ -1,11 +1,3 @@
-import sqlite3
-import sys
-import os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-from models.person import Person
-
 class AccountsDbRepository:
     def __init__(self, db_path='game.db'):
         self.conn = sqlite3.connect(db_path)
@@ -55,19 +47,22 @@ class AccountsDbRepository:
             return True
         return False
 
-    def update_accounts(self, **kwargs):
+    def update_accounts(self, account): # Доделать остальные параметры!
         self.cursor.execute('''
             UPDATE account
             SET nickname = ?,
                 login = ?,
                 password = ?,
+                cash = ?,
+                level = ?,
             WHERE id = ?
         ''', (
-            kwargs['nickname'],
-            kwargs['login'],
-            kwargs['password'],
-            kwargs['account_id'],
-        ))
+            account.nickname,
+            account.login,
+            account.password,
+            account.cash,
+            account.level,
+            account.account_id))
         self.conn.commit()
 
     def delete_account(self, account_id):

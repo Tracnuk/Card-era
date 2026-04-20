@@ -5,21 +5,21 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from game.battle import Battle
 
-class arena:
+class Arena:
     def __init__(self):
         self.leave = False
-        battle = Battle()
-        battle.giv_activ_cards(1)
+        self.battle = Battle()
+        self.battle.giv_activ_cards(1, 1)
         return battle.get_battle_data()
     
-    def batle(self, status):
-        massage = ''
+    def status_action(self, status, position_in_activ_cards, position_in_field):
         match(status):
             case 1:
-                massage = battle.plant_player_card(int(input()), int(input()))
+                battle_data = self.battle.plant_player_card(position_in_activ_cards,
+                                                   position_in_field)
             case 2:
                 # ход бота
-                battle.attak_cards()
+                battle_data = battle.attak_cards()
             case 3:
                 self.leave = True
-        return (butle.get_battle_data(), self.leave, massage)
+        return (battle_data, self.leave)
