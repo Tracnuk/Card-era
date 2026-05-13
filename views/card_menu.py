@@ -6,7 +6,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from services.card_service import *
 from services.import_cards_from_XLSX import ImportXLSXService
 
-import_xlsx = ImportXLSXService()
 cards = CardService()
 
 while True:
@@ -47,7 +46,8 @@ while True:
                 print(card_object)
             print()
         case 6:
-            import_xlsx.import_data()
+            ImportXLSXService().import_data()
+            print()
         case 0:
             break
         case _:

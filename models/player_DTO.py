@@ -3,6 +3,6 @@ class Player():
         self.deck_of_cards = deck_of_cards
         self.hp = hp
         self.energy = energy
-        self.activ_card = activ_cards
+        self.activ_cards = activ_cards
         self.wasted_energy = wasted_energy
         

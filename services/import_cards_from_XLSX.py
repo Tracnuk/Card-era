@@ -1,9 +1,8 @@
 import sys
 import os
+from openpyxl import load_workbook
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-from openpyxl import load_workbook
 
 from repositories.card_db_repository import CardDbRepository
 from models.card import Card
@@ -18,7 +17,14 @@ class ImportXLSXService:
             workbook = load_workbook(xlsx_path)
             sheet = workbook.active
             rows = list(sheet.iter_rows(values_only=True))
-            for row_idx, row in enumerate(rows, start=2):
+            data_rows = rows[1:]
+            header_row = rows[0]
+            print(f"Заголовок файла: {header_row}")
+            print(f"Всего строк данных для обработки: {len(data_rows)}")
+            for row_idx, row in enumerate(data_rows, start=2):  # нумерация с 2 для отображения номера строки в Excel
+                if not row or all(cell is None for cell in row):
+                    print(f"Пропущена пустая строка (строка {row_idx})")
+                    continue
                 if len(row) < 9:
                     print(f"Пропущена неполная строка (строка {row_idx}): {row}")
                     continue

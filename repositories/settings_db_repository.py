@@ -1,10 +1,4 @@
 import sqlite3
-import sys
-import os
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-from models.person import Person
 
 class SettingsDbRepository:
     def __init__(self, db_path='game.db'):
@@ -21,7 +15,7 @@ class SettingsDbRepository:
                 card3_id INTEGER,
                 card4_id INTEGER,
                 card5_id INTEGER
-                )
+            )
         ''')
         self.conn.commit()
 
@@ -32,20 +26,20 @@ class SettingsDbRepository:
             VALUES (?, ?, ?, ?, ?, ?)
         ''', (account_id, deck.card1, deck.card2, deck.card3, deck.card4, deck.card5))
         self.conn.commit()
-        return self.cursor.lastrowid 
+        return self.cursor.lastrowid
 
     def get_settings_by_id(self, account_id):
         self.cursor.execute('SELECT * FROM settings WHERE account_id = ?', (account_id,))
         return self.cursor.fetchone()
-    
-    def update_cards(self, deck, account_id):
+        
+    def update_cards(self, deck, account_id): 
         self.cursor.execute('''
             UPDATE settings
             SET card1_id = ?,
                 card2_id = ?,
                 card3_id = ?,
                 card4_id = ?,
-                card5_id = ?,
+                card5_id = ?
             WHERE account_id = ?
         ''', (
             deck.card1,
@@ -56,11 +50,7 @@ class SettingsDbRepository:
             account_id,
         ))
         self.conn.commit()
-    
-    def delete_card(self, account_id): # А нужно ли это?
-        self.cursor.execute('DELETE FROM settings WHERE accont_id = ?', (account_id,))
-        self.conn.commit() 
 
-    def close(self):
-        self.conn.close()
-           
+    def delete_cards(self, account_id):
+        self.cursor.execute('DELETE FROM settings WHERE account_id = ?', (account_id,))
+        self.conn.commit()

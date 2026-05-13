@@ -13,75 +13,120 @@ person_db_storage = PersonsDbRepository()
 account_db_storage = AccountsDbRepository()
 
 class AccountService:
-    def __init__(self):
-        self.current_account = Account(None, None, None, None, None, None)
-        
-    def create_account(self, user_data, person_id):
+    @staticmethod
+    def create_account(user_data, person_id):
+        """Создаёт новый аккаунт. Возвращает ID аккаунта или сообщение об ошибке."""
         try:
+            # Проверяем, существует ли аккаунт с таким логином
+            existing_account = account_db_storage.get_account_by_login(user_data.login)
+            if existing_account:
+                return '\nПользователь с таким логином уже существует!\n'
+
             account = Account(user_data.nickname, user_data.login, user_data.password, person_id)
             account_id = account_db_storage.add_account(account)
-            self.current_account = account_db_storage.get_account_by_id(account_id)
-            person_db_storage.update_person(user_data.first_name, account_id)
             return account_id
-        except sqlite3.IntegrityError:
-            return 'Пользователь с таким логином уже существует!'
+        except sqlite3.IntegrityError as e:
+            return f'Ошибка целостности данных: {str(e)}'
         except Exception as e:
-            return f'Ошибка создания аккаунта: {str(e)}'
-        
-    def delete_account(self):
-        if self.current_account.id != None:
-            account_db_storage.delete_account(self.current_account.id)
-            self.current_account.id = None
-            return 'Аккаунт был удалён.'
-        else:
-            return 'Вы не вошли в аккаунт!'
+            return f'Неожиданная ошибка создания аккаунта: {str(e)}'
 
-    def update_account(self, new_nickname=self.current_account.nickname,
-                       new_login=self.current_account.login,
-                       new_password=self.current_account.password,
-                       cash=self.current_account.cash,
-                       level=self.current_account.level):
-        if self.current_account.id != None:
-            account_db_storage.update_accounts(Account(new_nickname, new_login,
-                                                       new_password, cash, level))
-            return 'Данные обновлены.'
-        else:
-            return 'Вы не вошли в аккаунт!'
-
-    def verification(self):
-        return self.current_account.id != None
-        
-    def authentication(self, login, password):
-        if account_db_storage.verification(login, password):
-            account = account_db_storage.get_account_by_login(login)
-            self.current_account.id = account[0]
-            return f'Добро пожаловать {account[2]}'
-        else:
-            return 'Неправильный логин или пароль!'
-    
-    def get_account_by_id(self, account_id=None):
-        if account_id != None:
-            return account_db_storage.get_account_by_id(account_id)
-        elif self.current_account.id != None:
-            return account_db_storage.get_account_by_id(self.current_account.id)
-        else:
-            return "Вы не вошли в аккаунт!"
-
-    def get_all_accounts(self):
-        result = account_db_storage.get_all_accounts()
-        if result and len(result) > 0:
-            accounts = [Account(account_id = data[0],
-                person_id = data[1],
-                nickname = data[2],
-                login = data[3],
-                password = data[4] if data[4] else '-',
-                cash = data[5] if data[5] else '-',
-                level = data[6] if data[6] else '-') for data in result]
-            return accounts
-        return ['Нет данных']
-                
-    def get_account_by_login(self, login):
+    @staticmethod
+    def delete_account(account_id):
+        """Удаляет аккаунт по ID. Возвращает сообщение об успехе или ошибке."""
         try:
-            return account_db_storage.get_account_by_login(login)
-        except:
-            return 'Такого логина не существует!'
+            account_db_storage.delete_account(account_id)
+            return (True, 'Аккаунт был удалён.')
+        except sqlite3.Error as e:
+            return (False, f'Ошибка удаления аккаунта: {str(e)}')
+
+    @staticmethod
+    def update_account(account_id, new_nickname, new_login, new_password, cash, level):
+        """Обновляет данные аккаунта. Возвращает сообщение об успехе или ошибке."""
+        # Проверяем, не занят ли новый логин другим аккаунтом (кроме текущего)
+        existing_account = account_db_storage.get_account_by_login(new_login)
+        if existing_account and existing_account[0] != account_id:
+            return 'Логин уже занят другим пользователем!'
+
+        updated_account = Account(
+            new_nickname,
+            new_login,
+            new_password,
+            existing_account[1],  # person_id из существующей записи
+            cash,
+            level
+        )
+        updated_account.id = account_id
+        account_db_storage.update_accounts(updated_account)
+        return 'Данные обновлены.'
+
+    @staticmethod
+    def authentication(login, password):
+        """Аутентифицирует пользователя. Возвращает кортеж (сообщение, успех)."""
+        if account_db_storage.authentication(login, password):
+            name = account_db_storage.get_account_by_login(login)[2]
+            return (f'\nДобро пожаловать, {name}!\n', True)
+        else:
+            return ('\nНеправильный логин или пароль!\n', False)
+
+    @staticmethod
+    def get_account_by_id(account_id):
+        """Получает аккаунт по ID. Возвращает объект Account или None."""
+        if not account_id:
+            return None
+        account_data = account_db_storage.get_account_by_id(account_id)
+        if account_data:
+            return Account(
+                account_id=account_data[0],
+                person_id=account_data[1],
+                nickname=account_data[2],
+                login=account_data[3],
+                password=account_data[4] if account_data[4] else '-',
+                cash=account_data[5] if account_data[5] else '-',
+                level=account_data[6] if account_data[6] else '-'
+            )
+        return None
+
+    @staticmethod
+    def get_all_accounts():
+        """Получает все аккаунты. Возвращает список объектов Account или пустой список."""
+        result = account_db_storage.get_all_accounts()
+        if result:
+            accounts = [
+                Account(
+                    account_id=data[0],
+                    person_id=data[1],
+                    nickname=data[2],
+                    login=data[3],
+                    password=data[4] if data[4] else '-',
+                    cash=data[5] if data[5] else '-',
+            level=data[6] if data[6] else '-'
+                ) for data in result
+            ]
+            return accounts
+        return []
+
+    @staticmethod
+    def get_account_by_login(login):
+        """Получает аккаунт по логину. Возвращает объект Account или None."""
+        try:
+            account_data = account_db_storage.get_account_by_login(login)
+            if account_data:
+                return Account(
+                    account_id=account_data[0],
+                    person_id=account_data[1],
+                    nickname=account_data[2],
+                    login=account_data[3],
+                    password=account_data[4] if account_data[4] else '-',
+                    cash=account_data[5] if account_data[5] else '-',
+                    level=account_data[6] if account_data[6] else '-'
+                )
+            else:
+                return None
+        except sqlite3.Error as e:
+            print(f'Ошибка базы данных в get_account_by_login: {str(e)}')
+            return None
+
+    @staticmethod
+    def verify_credentials(login, password):
+        """Проверяет учётные данные без вывода приветствия. Возвращает True/False."""
+        return bool(account_db_storage.authentication(login, password))

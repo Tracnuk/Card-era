@@ -1,3 +1,5 @@
+import sqlite3
+
 class AccountsDbRepository:
     def __init__(self, db_path='game.db'):
         self.conn = sqlite3.connect(db_path)
@@ -40,14 +42,14 @@ class AccountsDbRepository:
         self.cursor.execute('SELECT * FROM account')
         return self.cursor.fetchall()
 
-    def verification(self, login, password):
+    def authentication(self, login, password):
         self.cursor.execute('SELECT password FROM account WHERE login = ?', (login,))
         row = self.cursor.fetchone()
         if row and row[0] == password:
             return True
         return False
 
-    def update_accounts(self, account): # Доделать остальные параметры!
+    def update_accounts(self, account): 
         self.cursor.execute('''
             UPDATE account
             SET nickname = ?,

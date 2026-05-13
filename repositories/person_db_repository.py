@@ -40,7 +40,7 @@ class PersonsDbRepository:
         self.conn.commit()
         return persons
         
-    def update_person(self, person_id, first_name, surname, last_name, email, phone_number, account_id=None):
+    def update_person(self, person):
         self.cursor.execute('''
             UPDATE persons
             SET first_name = ?,
@@ -51,13 +51,13 @@ class PersonsDbRepository:
                 account_id = ?
             WHERE id = ?
         ''', (
-            first_name,
-            surname,
-            last_name,
-            email,
-            phone_number,
-            account_id,
-            person_id
+            person.first_name,
+            person.surname,
+            person.last_name,
+            person.email,
+            person.phone_number,
+            person.account_id,
+            person.person_id
         ))
         self.conn.commit()
         

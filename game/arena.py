@@ -6,20 +6,24 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from game.battle import Battle
 
 class Arena:
-    def __init__(self):
-        self.leave = False
-        self.battle = Battle()
+    def __init__(self, player_deck, enemy_deck):
+        self.battle = Battle(player_deck, enemy_deck)
         self.battle.giv_activ_cards(1, 1)
-        return battle.get_battle_data()
+        self.battle_data = self.battle.get_battle_data()
+        self.player_turn = True
     
     def status_action(self, status, position_in_activ_cards, position_in_field):
-        match(status):
-            case 1:
-                battle_data = self.battle.plant_player_card(position_in_activ_cards,
-                                                   position_in_field)
-            case 2:
-                # ход бота
-                battle_data = battle.attak_cards()
-            case 3:
-                self.leave = True
-        return (battle_data, self.leave)
+        if self.player_turn:
+            match(status):
+                case 1:
+                    battle_data = self.battle.player_plant_card(position_in_activ_cards, position_in_field)
+                case 2:
+                    self.player_turn = False
+        else:
+            while not self.player_turn:
+                enemy_data, self.player_turn = buttle.enemy.enemy_move(self.battle_data)
+                self.battle_data = self.battle.enemy_plant_card(enemy_data[1], enemy_data[0])
+        return self.battle_data
+
+    def start_buttle(self):
+        return self.battle_data

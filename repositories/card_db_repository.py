@@ -67,7 +67,7 @@ class CardDbRepository:
     def get_card_by_id(self, card_id):
         self.cursor.execute('SELECT * FROM cards WHERE id = ?', (card_id,))
         card = self.cursor.fetchone()
-        return card if card else None
+        return card
 
     def get_all_cards(self):
         self.cursor.execute('SELECT * FROM cards')
