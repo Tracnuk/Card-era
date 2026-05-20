@@ -19,7 +19,6 @@ class Game:
         return success, message
 
     def login(self, login, password):
-        from repositories.user_repository import user_storage
         user = user_storage.auth_user(login, password)
         if user:
             self.current_user = user
@@ -33,12 +32,13 @@ class Game:
         if not self.current_user:
             return "❌ Вы не вошли в аккаунт!"
         u = self.current_user
+        # Чистим вывод для универсальности
         return (
-            f"👤 <b>Профиль игрока</b>\n"
-            f"Ник: <b>{u[1]}</b>\n"
-            f"Имя героя: <b>{u[4]}</b>\n"
-            f"💰 Золото: <code>{u[5]}</code>\n"
-            f"🏆 Уровень: <code>{u[6]}</code>"
+            f"👤 Профиль игрока\n"
+            f"Ник: {u[1]}\n"
+            f"Имя героя: {u[4]}\n"
+            f"💰 Золото: {u[5]}\n"
+            f"🏆 Уровень: {u[6]}"
         )
 
     def get_inventory_info(self):
