@@ -17,7 +17,7 @@ from services.shop_service import shop_service
 
 # ВСТАВЬ СВОИ ДАННЫЕ СЮДА
 TOKEN = "vk1.a.OGgSNguAOhnJYU6LwhHbsBRmXJplU6x5nbM1zn6FczBo5eaK6hWNL1wczJAjZbvWFX2FgSakZABjNN0gEzr9FpXNG67aVOMc8U-RL67V7jj6GFxy9cc4yaQLdb9VJeeM5ScckIxUDTblvd5sZEDTqgVJNg6SXtdEt0kslC9O1-Bnkpdw_ZcKKLVNn72RxBE5wthaK0PbAR2D8gSRNeOEwg"
-GROUP_ID = 237640143  # ID твоей группы ВК (только цифры)   
+GROUP_ID = 237640143  # ID твоей группы ВК (только цифры)
 
 game = Game()
 user_states = {}
@@ -126,7 +126,7 @@ def handle_message(vk, event):
 
     # --- ОБЫЧНЫЕ ХЕНДЛЕРЫ И НАВИГАЦИЯ ---
     if text_lower in ["/start", "начать"]:
-        if game.verification():
+        if game.verification(peer_id):
             send_msg(vk, peer_id, "👋 С возвращением!", get_start_menu())
         else:
             send_msg(vk, peer_id, "👋 Добро пожаловать! Войдите или зарегистрируйтесь:", get_auth_menu())
@@ -140,25 +140,26 @@ def handle_message(vk, event):
         send_msg(vk, peer_id, "🔑 Введите логин:")
 
     elif text == "🎮 Играть":
-        if game.verification():
+        if game.verification(peer_id):
             send_msg(vk, peer_id, "🎯 Выберите раздел:", get_game_menu())
         else:
             send_msg(vk, peer_id, "❌ Вы не авторизованы!")
 
     elif text == "🛒 Магазин":
-        if not game.verification():
+        if not game.verification(peer_id):
             send_msg(vk, peer_id, "❌ Сначала войдите!")
             return
         shop_text = shop_service.get_shop_menu_text()
         send_msg(vk, peer_id, shop_text, get_back_to_play_menu())
 
     elif text_lower.startswith("/buy_"):
-        if not game.verification():
+        if not game.verification(peer_id):
             send_msg(vk, peer_id, "❌ Сначала войдите в аккаунт!")
             return
         try:
             card_id = int(text.split("_")[1])
-            user_id = game.current_user[0]
+            user_id = user_data = game.sessions.get(peer_id)
+            account_id = user_data[0]
             result = shop_service.process_purchase(user_id, card_id)
             game.login(game.current_user[2], game.current_user[3])
             send_msg(vk, peer_id, result)
@@ -167,12 +168,11 @@ def handle_message(vk, event):
             send_msg(vk, peer_id, "❌ Используйте формат: /buy_ID (например /buy_1)")
 
     elif text == "🎒 Инвентарь":
-        # Ровно твоя функция вывода инвентаря
-        inventory_text = game.get_inventory_info()
+        inventory_text = game.get_inventory_info(peer_id)
         send_msg(vk, peer_id, inventory_text, get_back_to_play_menu())
 
     elif text == "👤 Профиль":
-        send_msg(vk, peer_id, game.get_current_user(), get_start_menu())
+        send_msg(vk, peer_id, game.get_current_user(peer_id), get_start_menu())
 
     elif text == "🚪 Выйти":
         game.logout()
@@ -182,11 +182,12 @@ def handle_message(vk, event):
         send_msg(vk, peer_id, "🏠 Главное меню:", get_start_menu())
 
     elif text_lower == "/reset_inventory":
-        if not game.verification():
+        if not game.verification(peer_id):
             send_msg(vk, peer_id, "❌ Сначала войдите!")
             return
         from repositories.card_ownership import card_ownership_storage
-        account_id = game.current_user[0]
+        account_id = user_data = game.sessions.get(peer_id)
+        account_id = user_data[0]
         card_ownership_storage.delete_all_user_cards(account_id)
         for _ in range(5):
             card_ownership_storage.add_card_and_account(5, account_id)
@@ -198,7 +199,7 @@ def main():
     vk = vk_session.get_api()
     longpoll = VkBotLongPoll(vk_session, GROUP_ID)
 
-    logger.info("🚀 Бот ВК запущен на базе логики из ТГ!")
+    logger.info("🚀 Бот ВК запущен!")
     
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW and event.from_user:
