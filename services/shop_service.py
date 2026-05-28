@@ -22,10 +22,11 @@ class ShopService:
                     continue
 
                 # Формируем карточку товара
-                text += f"<code>{c.get('icon', '🐾')}</code>\n"
-                text += f"🔹 <b>{str(c['name']).upper()}</b>\n"
-                text += f"Цена: 💰 <code>{c['price']}</code> | Ранг: {c['rarity']}\n"
-                text += f"Купить: /buy_{c['id']}\n\n"
+                # Формируем карточку БЕЗ HTML-тегов
+                text += f"{c.get('icon', '🐾')} {str(c['name']).upper()}\n"
+                text += f"Цена: {c['price']} | Ранг: {c['rarity']}\n"
+                text += f"Для покупки: /buy_{c['id']}\n"
+                text += "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
             
             # Если после фильтрации список стал пустым
             if text == "🛒 <b>МАГАЗИН ЖИВОТНЫХ</b>\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n\n":

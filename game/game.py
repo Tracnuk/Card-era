@@ -3,7 +3,7 @@ from repositories.user_repository import user_storage
 
 class Game:
     def __init__(self):
-        self.sessions = {} # Храним сессии: {peer_id: user_data}
+        self.sessions = {} # Сессии игроков {peer_id: user_data}
         self.owner_service = OwnerService()
 
     def register(self, user_dto):
@@ -20,7 +20,7 @@ class Game:
     def login(self, peer_id, login, password):
         user = user_storage.auth_user(login, password)
         if user:
-            self.sessions[peer_id] = user # Привязываем пользователя к чату
+            self.sessions[peer_id] = user
             return True
         return False
 
@@ -37,6 +37,7 @@ class Game:
         user = self.sessions.get(peer_id)
         if not user:
             return "❌ Сначала войдите в аккаунт!"
+        # Берем ID аккаунта (user[0]) и достаем инвентарь
         return self.owner_service.get_inventory_text(user[0])
 
     def logout(self, peer_id):
